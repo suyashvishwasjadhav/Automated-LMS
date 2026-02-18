@@ -1154,7 +1154,7 @@ Verify all 11 secrets exist in Secret Manager before deploying:
 6. `SMTP_PASSWORD`
 7. `GOOGLE_CLIENT_ID`
 8. `GOOGLE_CLIENT_SECRET`
-9. `DATABASE_URL` = `postgresql://postgres:MySecurePass2025!@35.200.207.252:5432/automate`
+9. `DATABASE_URL` = `postgresql://postgres:MySecurePass2026!@35.200.207.252:5432/automate`
 10. `GCP_BUCKET_NAME` = `capstone-learning-uploads`
 11. `GOOGLE_APPLICATION_CREDENTIALS_JSON` = (entire ocr.json content)
 
@@ -1327,7 +1327,7 @@ Build integrations with popular enterprise tools: Slack/Teams for notifications,
 
 ## License
 
-Copyright © 2025 **Suyash Vishwas Jadhav**. All rights reserved.
+Copyright © 2026 **Suyash Vishwas Jadhav**. All rights reserved.
 
 This software and its source code are the exclusive intellectual property of Suyash Vishwas Jadhav. Unauthorized copying, reproduction, modification, distribution, or use of this software, in whole or in part, without the express written permission of the copyright holder is strictly prohibited.
 
@@ -1337,4 +1337,4 @@ For licensing inquiries, contact the author directly.
 
 *Built with Flask, PostgreSQL, Google Cloud, and multiple AI providers. Designed for enterprise-grade educational management.*
 
-*© 2025 Suyash Vishwas Jadhav — Lead Developer, Designer, Architect & Creator*
+*© 2026 Suyash Vishwas Jadhav — Lead Developer, Designer, Architect & Creator*
