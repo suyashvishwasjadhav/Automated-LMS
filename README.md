@@ -16,8 +16,8 @@
 
 | Name | Contribution |
 |------|--------------|
-| **Harsh Gawande** | Diagram Evaluation — built the AI-powered system that evaluates hand-drawn and digital diagrams submitted by learners, scoring them across topic match, accuracy, structure, visual quality, and technical correctness , Assisted in Problem Solving |
-| **Nidhi Pawar** | Plagiarism Detection — built the rule-based plagiarism scoring engine that analyzes student text submissions, detects copied or AI-generated content, and returns a plagiarism confidence score , Assisted in Problem Solving  |
+| **Harsh Gawande** | Diagram Evaluation — built the AI-powered system that evaluates hand-drawn and digital diagrams submitted by learners, scoring them across topic match, accuracy, structure, visual quality, and technical correctness, Assisted in Problem Solving |
+| **Nidhi Pawar** | Plagiarism Detection — built the rule-based plagiarism scoring engine that analyzes student text submissions, detects copied or AI-generated content, and returns a plagiarism confidence score, Assisted in Problem Solving  |
 | **Vedant Gosavi** | Assist in Problem Solving and   bug solving testing env |
 ---
 
