@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Platform - Demo</title>
+    <link rel="stylesheet" href="static/css/demo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-progress"></div>
+    
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-shape shape1"></div>
+        <div class="floating-shape shape2"></div>
+        <div class="floating-shape shape3"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass" id="navbar">
+        <div class="container nav-container">
+            <a href="#home" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                Learning Platform
+            </a>
+            <div class="nav-links">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#demo" class="nav-link">Demo</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-secondary">Sign Up</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="hero-content" data-aos="fade-up">
+                <h1 class="hero-title">
+                    Welcome to the <span class="gradient-text">Future</span> of Learning
+                </h1>
+                <p class="hero-subtitle">
+                       ..Empowering education through innovative technology and seamless collaboration
+                </p>
+                <div class="hero-buttons">
+                    <a href="/login" class="btn btn-large btn-primary">
+                        <i class="fas fa-rocket"></i> Login now 
+                    </a>
+                    <a href="/register" class="btn btn-large btn-secondary">
+                        <i class="fas fa-play-circle"></i> register now 
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image" data-aos="fade-left">
+                <div class="floating-card glass">
+                    <i class="fas fa-book-reader fa-3x"></i>
+                    <h3>Smart Learning</h3>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Powerful Features</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Everything you need for modern education
+            </p>
+            
+            <div class="features-wrapper">
+                <!-- First Row - Scrolls Left -->
+                <div class="features-grid features-row-1" id="featuresGrid1">
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="0">
+                        <div class="feature-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <h3>Course Management</h3>
+                        <p>Comprehensive tools for creating and managing courses with ease</p>
+                    </div>
+
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Multi-Role Support</h3>
+                        <p>Executive, Guide, and Learner roles with tailored experiences</p>
+                    </div>
+
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="feature-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>Real-Time Chat</h3>
+                        <p>Instant messaging and collaboration between guides and learners</p>
+                    </div>
+
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>AI Chatbot</h3>
+                        <p>Intelligent assistant for instant answers and support</p>
+                    </div>
+                </div>
+
+                <!-- Second Row - Scrolls Right -->
+                <div class="features-grid features-row-2" id="featuresGrid2">
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="400">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3>Assignment Checker</h3>
+                        <p>Automated grading with OCR for handwritten submissions</p>
+                    </div>
+
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="500">
+                        <div class="feature-icon">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <h3>Diagram Evaluation</h3>
+                        <p>Advanced AI for analyzing and grading diagrams</p>
+                    </div>
+
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="600">
+                        <div class="feature-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h3>News Sharing</h3>
+                        <p>Stay updated with educational news and announcements</p>
+                    </div>
+
+                    <div class="feature-card glass" data-aos="zoom-in" data-aos-delay="700">
+                        <div class="feature-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3>Gamification</h3>
+                        <p>Earn points, badges, and compete on leaderboards</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section with OCR -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Interactive Demo</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Try our OCR-powered assignment checker
+            </p>
+            <p class="demo-magic-text" data-aos="fade-up" data-aos-delay="150" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-magic"></i> Click here to see the magic of OCR!
+            </p>
+
+            <div class="demo-container glass" data-aos="fade-up" data-aos-delay="200">
+                <div class="ocr-demo">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-4x"></i>
+                        <h3>Upload Handwritten Assignment</h3>
+                        <p>Drag & drop or click to upload</p>
+                        <input type="file" id="fileInput" accept="image/*" hidden>
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                            Choose File
+                        </button>
+                    </div>
+
+                    <div class="demo-results" id="demoResults" style="display: none;">
+                        <div class="result-preview">
+                            <h3>Uploaded Image</h3>
+                            <img id="previewImage" alt="Preview">
+                        </div>
+                        <div class="result-text">
+                            <h3>Extracted Text</h3>
+                            <div class="accuracy-meter">
+                                <span>OCR Accuracy: </span>
+                                <div class="meter">
+                                    <div class="meter-fill" id="accuracyFill"></div>
+                                </div>
+                                <span id="accuracyText">98.5%</span>
+                            </div>
+                            <div class="extracted-text" id="extractedText">
+                                Processing...
+                            </div>
+                            <button class="btn btn-secondary" onclick="resetDemo()">
+                                <i class="fas fa-redo"></i> Try Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-stats">
+                    <div class="stat-card glass" style="--delay: 0">
+                        <i class="fas fa-check-circle"></i>
+                        <h4>98.5%</h4>
+                        <p>OCR Accuracy</p>
+                    </div>
+                    <div class="stat-card glass" style="--delay: 1">
+                        <i class="fas fa-clock"></i>
+                        <h4>&lt;2s</h4>
+                        <p>Processing Time</p>
+                    </div>
+                    <div class="stat-card glass" style="--delay: 2">
+                        <i class="fas fa-language"></i>
+                        <h4>50+</h4>
+                        <p>Languages</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text" data-aos="fade-right">
+                    <h2 class="section-title">About Us</h2>
+                    <p>
+                        Our Learning Platform is designed to revolutionize the way educational 
+                        institutions manage their courses and facilitate learning. We provide a 
+                        comprehensive solution that brings together executives, guides, and learners 
+                        in a seamless, beautiful environment.
+                    </p>
+                    <h3>Our Mission</h3>
+                    <p>
+                        To empower educational organizations with cutting-edge technology that 
+                        simplifies course management, enhances communication, and creates meaningful 
+                        learning experiences.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Secure & Reliable</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Mobile Friendly</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-bolt"></i>
+                            <span>Lightning Fast</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image" data-aos="fade-left">
+                    <div class="stats-container glass">
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="10000">0</h3>
+                            <p>Active Users</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="500">0</h3>
+                            <p>Organizations</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="5000">0</h3>
+                            <p>Courses</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="99">0</h3>
+                            <p>Satisfaction %</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Get In Touch</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Have questions? We'd love to hear from you
+            </p>
+
+            <div class="contact-container">
+                <div class="contact-info" data-aos="fade-right">
+                    <div class="contact-card glass">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p>support@learningplatform.com</p>
+                    </div>
+                    <div class="contact-card glass">
+                        <i class="fas fa-phone"></i>
+                        <h3>Phone</h3>
+                        <p>+1 (555) 123-4567</p>
+                    </div>
+                    <div class="contact-card glass">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Address</h3>
+                        <p>123 Education Street<br>Learning City, LC 12345</p>
+                    </div>
+                </div>
+
+                <form class="contact-form glass" data-aos="fade-left">
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer glass">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Learning Platform</h3>
+                    <p>Revolutionizing education through technology</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#demo">Demo</a>
+                    <a href="#about">About</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">API</a>
+                    <a href="#">Support</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Learning Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="static/js/demo.js"></script>
+</body>
+</html>

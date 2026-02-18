@@ -1,0 +1,54 @@
+# Environment Variables
+.env
+.env.local
+.env.production
+
+# Sensitive JSON files
+ocr.json
+*client_secret*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Flask
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads and temporary files
+uploads/
+temp_audio/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.pdf
+*.mp3
+*.wav
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/

@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Sensitive files
+ocr.json
+*client_secret*.json
+
+# Uploads and temp files
+uploads/
+temp_audio/
+static/uploads/
+static/logos/
+static/photos/
+static/assignment_uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.pdf
+*.mp3
+*.wav
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Distribution
+build/
+dist/

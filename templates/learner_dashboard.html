@@ -1,0 +1,4682 @@
+<!-- learner_dashboard.html-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {% endif %}
+    <title>Learner Dashboard</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* learner glass  */
+        :root {
+            --bg-gradient-start: #e0e7ff;
+            --bg-gradient-end: #fce7f3;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --hover-bg: rgba(255, 255, 255, 0.4);
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e1b4b;
+            --glass-bg: rgba(15, 23, 42, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-primary: #818cf8;
+            --accent-secondary: #a78bfa;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --hover-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            scroll-behavior: smooth;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px var(--shadow-color);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            background: var(--hover-bg);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95) rotate(-15deg);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Glass Effect */
+        .glass-header,
+        .glass-sidebar,
+        .glass-main,
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px var(--shadow-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Header */
+        .glass-header {
+            margin-bottom: 30px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .logo:hover {
+            transform: translateX(5px);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.8);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 1);
+            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Dashboard Layout */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        /* Sidebar */
+        .glass-sidebar {
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            padding: 25px;
+            animation: slideRight 0.6s ease-out 0.3s both;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-link:hover,
+        .menu-link.active {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            transform: translateX(5px);
+        }
+
+        .menu-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .menu-link i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            margin-top: 30px;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .progress-card {
+            padding: 20px;
+        }
+
+        .progress-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            animation: progressFill 1.5s ease-out;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        .progress-text i {
+            color: var(--accent-primary);
+            margin-right: 5px;
+        }
+        
+        .progress-text small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* Edit Profile Photo Button */
+        .edit-photo-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            color: white;
+            border: 3px solid var(--glass-bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .edit-photo-btn:hover {
+            transform: scale(1.1);
+            background: var(--accent-secondary);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-avatar {
+            position: relative;
+        }
+
+        /* Edit Photo Modal */
+        #editPhotoModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #editPhotoModal .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #editPhotoModal .form-group {
+            margin-bottom: 20px;
+        }
+
+        #editPhotoModal label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        #editPhotoModal input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--glass-border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .glass-main {
+            padding: 30px;
+            min-height: calc(100vh - 150px);
+            animation: slideLeft 0.6s ease-out 0.4s both;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            padding-left: 50px;
+        }
+
+        /* Cards */
+        .glass-card {
+            padding: 25px;
+            margin-bottom: 20px;
+            animation: scaleIn 0.5s ease-out;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+        }
+
+        /* Announcements Grid */
+        .announcements-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .announcement-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .announcement-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: var(--hover-bg);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .card-body p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-download:hover {
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Courses Grid */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .course-card {
+            text-align: center;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .course-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .course-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .course-details {
+            margin: 20px 0;
+            color: var(--text-secondary);
+        }
+
+        .course-details p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* ==================== DOCUMENT CHAT RESPONSIVE STYLES ==================== */
+        #document-chat {
+            padding: 20px;
+        }
+
+        #document-chat .glass-card {
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chat-step {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .chat-step h3 {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        #chat-course-select,
+        #chat-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        #chat-course-select:focus,
+        #chat-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        #chat-messages-container {
+            min-height: 300px;
+            max-height: 500px;
+            padding: 20px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 15px 18px;
+            border-radius: 12px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .chat-message.bot-message {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .chat-message.user-message {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            text-align: right;
+            margin-left: auto;
+            max-width: 80%;
+        }
+
+        .chat-message p {
+            margin: 0;
+            color: inherit;
+        }
+
+        .chat-message strong {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .chat-message ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .chat-message li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        #chat-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        #chat-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .chat-btn {
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .chat-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .chat-btn-secondary {
+            background: var(--accent-secondary);
+            color: white;
+        }
+
+        .chat-btn-secondary:hover {
+            background: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .chat-btn-back {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        .chat-btn-back:hover {
+            background: var(--text-primary);
+        }
+
+        #quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        #quick-actions .btn-sm {
+            padding: 10px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        #quick-actions .btn-sm:hover {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        #chat-documents-list .glass-card {
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        #chat-documents-list .glass-card:hover {
+            background: var(--hover-bg);
+            border-color: var(--accent-primary);
+            transform: translateX(5px);
+        }
+
+        #chat-documents-list h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        #chat-documents-list .badge {
+            padding: 6px 12px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Voice Input Button */
+        .voice-btn {
+            background: var(--accent-secondary);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            background: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .voice-btn.recording {
+            background: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Responsive Design for Document Chat */
+        @media (max-width: 768px) {
+            #document-chat {
+                padding: 15px;
+            }
+
+            #document-chat .glass-card {
+                padding: 20px;
+            }
+
+            .chat-message.user-message {
+                max-width: 90%;
+            }
+
+            #chat-input-container {
+                flex-direction: column;
+            }
+
+            #chat-input {
+                width: 100%;
+            }
+
+            .chat-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #chat-messages-container {
+                min-height: 250px;
+                max-height: 400px;
+                padding: 15px;
+            }
+
+            #quick-actions {
+                gap: 8px;
+            }
+
+            #quick-actions .btn-sm {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 900px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--hover-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Materials Table */
+        .materials-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .materials-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .materials-table thead th {
+            background: var(--hover-bg);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border: none;
+        }
+
+        .materials-table thead th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .materials-table thead th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .materials-table tbody tr {
+            background: var(--glass-bg);
+            transition: all 0.3s ease;
+        }
+
+        .materials-table tbody tr:hover {
+            background: var(--hover-bg);
+            transform: scale(1.02);
+        }
+
+        .materials-table tbody td {
+            padding: 15px;
+            border: none;
+        }
+
+        .materials-table tbody tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .materials-table tbody tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .materials-table .btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .messages-placeholder {
+            text-align: center;
+        }
+
+        .messages-placeholder i {
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .messages-placeholder p {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .messages-placeholder small {
+            color: var(--text-secondary);
+        }
+
+        /* Profile Section */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+        }
+
+        .profile-card {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--glass-border);
+            box-shadow: 0 8px 25px var(--shadow-color);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar i {
+            font-size: 5rem;
+            color: var(--text-secondary);
+        }
+
+        .profile-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat {
+            padding: 15px;
+            background: var(--hover-bg);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .stat:hover {
+            transform: scale(1.05);
+        }
+
+        .stat i {
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+        }
+
+        .stat span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .profile-info h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+        }
+
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--hover-bg);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Particles Animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 20s infinite;
+        }
+
+        .particle:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 15s;
+        }
+
+        .particle:nth-child(2) {
+            left: 30%;
+            animation-delay: 3s;
+            animation-duration: 18s;
+        }
+
+        .particle:nth-child(3) {
+            left: 50%;
+            animation-delay: 6s;
+            animation-duration: 22s;
+        }
+
+        .particle:nth-child(4) {
+            left: 70%;
+            animation-delay: 9s;
+            animation-duration: 16s;
+        }
+
+        .particle:nth-child(5) {
+            left: 90%;
+            animation-delay: 12s;
+            animation-duration: 20s;
+        }
+
+        /* Floating Message Button Styles - Removed (moved to Guidebot) */
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideRight {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(-100vh) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes progressFill {
+            from {
+                width: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-layout {
+                grid-template-columns: 250px 1fr;
+            }
+
+            .courses-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .glass-sidebar {
+                position: relative;
+                top: 0;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .section-subtitle {
+                padding-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .welcome-text {
+                justify-content: center;
+            }
+
+            .glass-main {
+                padding: 20px;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .announcement-card .card-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .materials-table {
+                font-size: 0.85rem;
+            }
+
+            .materials-table thead {
+                display: none;
+            }
+
+            .materials-table tbody tr {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 15px;
+                padding: 15px;
+                border-radius: 12px;
+            }
+
+            .materials-table tbody td {
+                padding: 8px 0;
+                border: none;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .materials-table tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-secondary);
+            }
+
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .logo i {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+
+            .course-card {
+                padding: 25px 20px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+        }
+
+        /* Selection Styling */
+        ::selection {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        ::-moz-selection {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--glass-border);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .assignment-card {
+            background: var(--glass-bg);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .assignment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+        }
+
+        .assignment-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+            color: var(--text-secondary);
+        }
+
+        .assignment-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .deadline-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .deadline-badge.urgent {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .deadline-badge.upcoming {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .deadline-badge.ok {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .question-upload-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-image {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .preview-image img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submission-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .score-display {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .feedback-box {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 3px solid var(--accent-primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+
+
+        .mcq-option {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%) !important;
+            border: 2px solid #e0e7ff !important;
+            color: #1a1a1a !important;
+            font-size: 1.1rem !important;
+            font-weight: 500 !important;
+            text-align: left !important;
+            padding: 18px 20px !important;
+            border-radius: 12px !important;
+            margin-bottom: 12px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            cursor: pointer !important;
+            position: relative !important;
+        }
+
+        .mcq-option:hover {
+            transform: translateX(8px) scale(1.02);
+            border-color: #667eea !important;
+            background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%) !important;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+        }
+
+        .mcq-option strong {
+            color: #667eea !important;
+            font-size: 1.2rem !important;
+            margin-right: 10px !important;
+        }
+
+        .games-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: var(--hover-bg);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border-color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .games-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: var(--hover-bg);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .game-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-item.locked {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .game-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-easy {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .badge-medium {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .badge-hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .game-stats-mini {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .cooldown-timer {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .news-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .news-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .news-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .leaderboard-filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .leaderboard-filters label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .leaderboard-filters select,
+        .leaderboard-filters .form-control {
+            padding: 10px 15px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            min-width: 200px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 120px;
+            gap: 20px;
+            padding: 15px 20px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-row:hover {
+            background: var(--hover-bg);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-row.current-user {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid var(--accent-primary);
+        }
+
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .rank-1 {
+            color: #FFD700;
+        }
+
+        .rank-2 {
+            color: #C0C0C0;
+        }
+
+        .rank-3 {
+            color: #CD7F32;
+        }
+
+        .stat-card-game {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card-game:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-value-big {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label-big {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-row {
+                grid-template-columns: 60px 1fr;
+                gap: 10px;
+            }
+
+            .games-tabs {
+                gap: 5px;
+            }
+
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="header-content">
+                <a href="{{ url_for('learner_dashboard') }}" class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Learning Platform</span>
+                </a>
+                <nav class="nav-links">
+                    <span class="welcome-text">
+                        <i class="fas fa-user-circle"></i>
+                        {{ current_user.full_name }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <div class="dashboard-layout">
+            <!-- Sidebar -->
+            <aside class="glass-sidebar">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#announcements" class="menu-link active" data-section="announcements">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#courses" class="menu-link" data-section="courses">
+                            <i class="fas fa-book"></i>
+                            <span>My Courses</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#profile" class="menu-link" data-section="profile">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#assignments" class="menu-link" data-section="assignments">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Assignments</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#document-chat" class="menu-link" data-section="document-chat">
+                            <i class="fas fa-comments"></i>
+                            <span>Document Chat</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#diagram-evaluation" class="menu-link" data-section="diagram-evaluation">
+                            <i class="fas fa-draw-polygon"></i>
+                            <span>Diagram Evaluation</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#attempt-mcq" class="menu-link" data-section="attempt-mcq">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Attempt MCQ</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="sidebar-footer">
+                    <div class="progress-card glass-card">
+                        <h4><i class="fas fa-chart-line"></i> Learning Progress</h4>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p class="progress-text" id="progress-text">Loading...</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="glass-main">
+                <!-- Announcements Section -->
+                <section id="announcements" class="content-section active">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-bullhorn"></i>
+                            Announcements
+                        </h1>
+                        <p class="section-subtitle">Stay updated with latest news</p>
+                    </div>
+
+                    <div class="announcements-grid">
+                        {% for announcement in announcements %}
+                        <div class="glass-card announcement-card">
+                            <div class="card-header">
+                                <h3>{{ announcement.title }}</h3>
+                                <span class="badge">
+                                    <i class="far fa-clock"></i>
+                                    {{ announcement.created_at.strftime('%B %d, %Y') }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ announcement.content }}</p>
+                                {% if announcement.file_path %}
+                                <a href="{{ url_for('download_file', filename=announcement.file_path.split('/')[-1]) }}"
+                                    class="btn btn-download">
+                                    <i class="fas fa-download"></i>
+                                    Download Attachment
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="glass-card empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No announcements yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- Courses Section -->
+                <section id="courses" class="content-section">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-book"></i>
+                            My Courses
+                        </h1>
+                        <p class="section-subtitle">Continue your learning journey</p>
+                    </div>
+
+                    <div class="courses-grid">
+                        {% for course in courses %}
+                        <div class="glass-card course-card" data-course-id="{{ course.id }}">
+                            <div class="course-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>{{ course.course_name }}</h3>
+                            <div class="course-details">
+                                <p>
+                                    <i class="fas fa-building"></i>
+                                    {{ course.organization }}
+                                </p>
+                                {% if course.guide %}
+                                <p>
+                                    <i class="fas fa-user-tie"></i>
+                                    {{ course.guide.full_name or course.guide.username }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-primary view-materials-btn" data-course-id="{{ course.id }}">
+                                <i class="fas fa-folder-open"></i>
+                                View Materials
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="glass-card empty-state">
+                            <i class="fas fa-book-open"></i>
+                            <p>No courses enrolled yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Materials Modal -->
+                    <div id="materialsModal" class="modal">
+                        <div class="modal-content glass-card">
+                            <div class="modal-header">
+                                <h2 id="modalCourseName">Course Materials</h2>
+                                <button class="modal-close">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="materials-table-wrapper">
+                                    <table class="materials-table">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fas fa-file"></i> File Name</th>
+                                                <th><i class="fas fa-tag"></i> Type</th>
+                                                <th><i class="fas fa-weight"></i> Size (MB)</th>
+                                                <th><i class="fas fa-calendar"></i> Uploaded</th>
+                                                <th><i class="fas fa-cog"></i> Actions</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="materialsTableBody">
+                                            <!-- Materials will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile Section -->
+                <section id="profile" class="content-section">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-user"></i>
+                            My Profile
+                        </h1>
+                        <p class="section-subtitle">Manage your account settings</p>
+                    </div>
+
+                    <div class="profile-grid">
+                        <div class="glass-card profile-card">
+                            <div class="profile-avatar" style="position: relative;">
+                                {% if current_user.profile_photo %}
+                                <img src="{{ url_for('static', filename=current_user.profile_photo.replace('static/', '')) }}" alt="Profile" id="profile-photo-img">
+                                {% else %}
+                                <i class="fas fa-user-circle" id="profile-photo-icon"></i>
+                                {% endif %}
+                                <button class="edit-photo-btn" onclick="openEditPhotoModal()" title="Edit Profile Picture">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            <h3>{{ current_user.full_name }}</h3>
+                            <p class="profile-email">{{ current_user.email }}</p>
+                            <div class="profile-stats">
+                                <div class="stat">
+                                    <i class="fas fa-book"></i>
+                                    <span>{{ courses|length }} Courses</span>
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>Learner</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card profile-info">
+                            <h3><i class="fas fa-info-circle"></i> Account Information</h3>
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <span class="info-label">Username:</span>
+                                    <span class="info-value">{{ current_user.username }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Organization:</span>
+                                    <span class="info-value">{{ current_user.organization_name }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Role:</span>
+                                    <span class="info-value">
+                                        <span class="badge badge-primary">{{ current_user.role }}</span>
+                                    </span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Member Since:</span>
+                                    <span class="info-value">{{ current_user.created_at.strftime('%B %d, %Y') }}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Edit Profile Picture Modal -->
+                <div id="editPhotoModal" class="modal" style="display: none;">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2><i class="fas fa-camera"></i> Update Profile Picture</h2>
+                            <button class="modal-close" onclick="closeEditPhotoModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-primary);">&times;</button>
+                        </div>
+                        <form id="updatePhotoForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="profile_photo_input">Select New Photo</label>
+                                <input type="file" id="profile_photo_input" name="profile_photo" accept="image/*" required style="padding: 10px; border: 2px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); width: 100%;">
+                                <small style="color: var(--text-secondary); margin-top: 5px; display: block;">Max file size: 5MB. Supported formats: JPG, PNG, GIF</small>
+                            </div>
+                            <div id="photo-preview" style="margin: 20px 0; text-align: center; display: none;">
+                                <img id="photo-preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 50%; border: 3px solid var(--accent-primary);">
+                            </div>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                                <button type="button" class="btn" onclick="closeEditPhotoModal()" style="background: var(--text-secondary);">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-upload"></i> Update Photo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Add this section to learner_dashboard.html main content -->
+                <section id="assignments" class="content-section">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Assignments
+                        </h1>
+                        <p class="section-subtitle">Complete and submit your assignments</p>
+                    </div>
+                    <div id="assignments-container"></div>
+
+                </section>
+
+                <!-- Document Chat Section -->
+                <section id="document-chat" class="content-section">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-comments"></i>
+                            Document Chat
+                        </h1>
+                        <p class="section-subtitle">Ask questions about course documents</p>
+                    </div>
+
+                    <div class="glass-card" style="padding: 30px;">
+                        <!-- Step 1: Select Course -->
+                        <div id="chat-step-course" class="chat-step">
+                            <h3 style="margin-bottom: 20px;">Step 1: Select Course</h3>
+                            <select id="chat-course-select" class="form-select" style="width: 100%; padding: 12px; border: 2px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-primary); margin-bottom: 20px;">
+                                <option value="">Choose a course...</option>
+                            </select>
+                        </div>
+
+                        <!-- Step 2: Select Document -->
+                        <div id="chat-step-document" class="chat-step" style="display: none;">
+                            <h3 style="margin-bottom: 20px;">Step 2: Select Document</h3>
+                            <div id="chat-documents-list" style="margin-bottom: 20px;">
+                                <p class="text-secondary">Loading documents...</p>
+                            </div>
+                            <button class="btn" onclick="goBackToCourseSelection()" style="background: var(--text-secondary);">
+                                <i class="fas fa-arrow-left"></i> Back to Courses
+                            </button>
+                        </div>
+
+                        <!-- Step 3: Chat Interface -->
+                        <div id="chat-step-chat" class="chat-step" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="margin: 0;">Chat with Document</h3>
+                                <button class="chat-btn chat-btn-back" onclick="goBackToDocumentSelection()">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                            </div>
+                            
+                            <div id="chat-messages-container">
+                                <div class="chat-message bot-message">
+                                    <p>Document selected! Ask me anything about it.</p>
+                                </div>
+                            </div>
+
+                            <div id="chat-input-container">
+                                <input type="text" id="chat-input" placeholder="Ask a question about the document...">
+                                <button class="chat-btn chat-btn-primary" onclick="sendChatMessage()">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                                <button class="voice-btn" onclick="toggleVoiceInputChat()" id="chat-voice-btn" title="Voice Input (Multi-language)">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="chat-btn chat-btn-secondary" onclick="readAloudChat()" id="chat-tts-btn" title="Read Aloud">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <label for="chat-voice-language-select" style="font-size: 13px; color: var(--text-secondary);">Language (optional):</label>
+                                <select id="chat-voice-language-select" style="padding: 8px 12px; border: 1px solid var(--glass-border); border-radius: 6px; background: var(--glass-bg); color: var(--text-primary); font-size: 13px;">
+                                    <option value="">Auto-detect</option>
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                    <option value="it">Italian</option>
+                                    <option value="pt">Portuguese</option>
+                                    <option value="ru">Russian</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="ko">Korean</option>
+                                    <option value="zh">Chinese</option>
+                                    <option value="ar">Arabic</option>
+                                    <option value="hi">Hindi</option>
+                                </select>
+                            </div>
+
+                            <div id="voice-input-status-chat" style="margin-top: 10px; display: none; padding: 12px; background: var(--glass-bg); border-radius: 8px; color: var(--text-primary); text-align: center;">
+                                <i class="fas fa-circle" style="color: #ef4444; animation: pulse 1s infinite;"></i> Recording... Click again to stop
+                            </div>
+
+                            <div id="quick-actions">
+                                <button class="btn-sm" onclick="setQuickAction('Give bullet points')">• Bullet Points</button>
+                                <button class="btn-sm" onclick="setQuickAction('Make it simpler')">💡 Simplify</button>
+                                <button class="btn-sm" onclick="setQuickAction('Expand / make it longer')">📏 Expand</button>
+                                <button class="btn-sm" onclick="setQuickAction('Summarize')">📝 Summarize</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Diagram Evaluation Section -->
+                <!-- Attempt MCQ Section -->
+                <section id="attempt-mcq" class="content-section">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-question-circle"></i>
+                            Attempt MCQ Tests
+                        </h1>
+                        <p class="section-subtitle">Test your knowledge with AI-generated MCQs</p>
+                    </div>
+
+                    <div class="card glass-strong" style="padding: 30px;">
+                        <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid var(--glass-border);">
+                            <button class="tab-btn active" onclick="switchLearnerMCQTab('available')" style="padding: 12px 24px; background: transparent; border: none; border-bottom: 3px solid var(--accent-color); color: var(--accent-color); font-size: 1rem; font-weight: 500; cursor: pointer;">Available Tests</button>
+                            <button class="tab-btn" onclick="switchLearnerMCQTab('attempts')" style="padding: 12px 24px; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--text-secondary); font-size: 1rem; font-weight: 500; cursor: pointer;">My Attempts</button>
+                        </div>
+
+                        <!-- Available Tests Tab -->
+                        <div id="learner-mcq-available-tab" class="learner-mcq-subtab" style="display: block;">
+                            <div id="available-mcq-container">
+                                <p style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading available tests...</p>
+                            </div>
+                        </div>
+
+                        <!-- My Attempts Tab -->
+                        <div id="learner-mcq-attempts-tab" class="learner-mcq-subtab" style="display: none;">
+                            <div id="my-attempts-container">
+                                <p style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading your attempts...</p>
+                            </div>
+                        </div>
+
+                        <!-- MCQ Attempt Interface -->
+                        <div id="mcq-attempt-interface" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                                <h2 id="mcq-test-title"></h2>
+                                <button class="btn" onclick="exitMCQAttempt()">Exit</button>
+                            </div>
+                            <div id="mcq-questions-container"></div>
+                            <div style="margin-top: 30px; text-align: center;">
+                                <button class="btn btn-primary" onclick="submitMCQAttempt()" id="submit-mcq-btn">Submit Answers</button>
+                            </div>
+                        </div>
+
+                        <!-- MCQ Results -->
+                        <div id="mcq-results-interface" style="display: none;">
+                            <h2 style="margin-bottom: 20px;">Test Results</h2>
+                            <div id="mcq-results-content"></div>
+                            <button class="btn btn-primary" onclick="backToMCQList()" style="margin-top: 20px;">Back to Tests</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="diagram-evaluation" class="content-section">
+                    <div class="section-header">
+                        <h1 class="section-title">
+                            <i class="fas fa-draw-polygon"></i>
+                            Diagram Evaluation
+                        </h1>
+                        <p class="section-subtitle">Submit your diagrams for evaluation</p>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid var(--glass-border);">
+                        <button class="tab-btn" onclick="switchLearnerDiagramTab('assignments')" style="padding: 12px 24px; background: transparent; border: none; border-bottom: 3px solid var(--accent-primary); color: var(--accent-primary); font-size: 1rem; font-weight: 500; cursor: pointer;">Available Assignments</button>
+                        <button class="tab-btn" onclick="switchLearnerDiagramTab('submissions')" style="padding: 12px 24px; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--text-secondary); font-size: 1rem; font-weight: 500; cursor: pointer;">My Submissions</button>
+                    </div>
+
+                    <!-- Assignments Tab -->
+                    <div id="learner-diagram-assignments-tab" class="learner-diagram-subtab">
+                        <div class="glass-card" style="padding: 30px;">
+                            <h2 style="margin-top: 0;">Available Diagram Assignments</h2>
+                            {% if diagram_assignments|length == 0 %}
+                            <p>No assignments available yet.</p>
+                            {% else %}
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                                {% for assignment in diagram_assignments %}
+                                <div class="glass-card" style="padding: 20px; cursor: pointer;" onclick="selectDiagramAssignment({{ assignment.id }}, '{{ assignment.topic }}')">
+                                    <h3 style="margin-top: 0;">{{ assignment.topic }}</h3>
+                                    <p><strong>Course:</strong> {{ assignment.course.course_name }}</p>
+                                    {% if assignment.description %}
+                                    <p>{{ assignment.description[:150] }}{% if assignment.description|length > 150 %}...{% endif %}</p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div id="learner-upload-section" style="display: none; margin-top: 30px;">
+                                <div class="glass-card" style="padding: 30px;">
+                                    <h3 id="selected-diagram-topic" style="color: var(--accent-primary);"></h3>
+                                    <div id="learner-upload-area" style="border: 3px dashed var(--accent-primary); border-radius: 15px; padding: 40px; text-align: center; cursor: pointer; margin: 20px 0;">
+                                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
+                                        <p>Drop your diagram here or click to upload</p>
+                                        <input type="file" id="learner-diagram-file" accept="image/*" style="display: none;">
+                                    </div>
+                                    <div id="learner-image-preview"></div>
+                                    <div style="margin: 20px 0;">
+                                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Describe your diagram (optional)</label>
+                                        <textarea id="learner-diagram-description" style="width: 100%; padding: 12px; border: 2px solid var(--glass-border); border-radius: 10px; min-height: 120px;"></textarea>
+                                    </div>
+                                    <button class="btn" onclick="submitLearnerDiagram()" id="submit-learner-diagram-btn">
+                                        <i class="fas fa-paper-plane"></i> Submit Diagram
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submissions Tab -->
+                    <div id="learner-diagram-submissions-tab" class="learner-diagram-subtab" style="display: none;">
+                        <div class="glass-card" style="padding: 30px;">
+                            <h2 style="margin-top: 0;">My Submissions</h2>
+                            {% if diagram_submissions|length == 0 %}
+                            <p>No submissions yet.</p>
+                            {% else %}
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px;">
+                                {% for submission in diagram_submissions %}
+                                <div class="glass-card" style="padding: 20px;">
+                                    <h3 style="margin-top: 0;">{{ submission.assignment.topic }}</h3>
+                                    <img src="/diagram-uploads/{{ submission.diagram_path.split('/')[-1] }}" style="width: 100%; border-radius: 10px; margin: 15px 0;">
+                                    <div style="text-align: center; padding: 20px; border-radius: 12px; margin: 15px 0; font-size: 2rem; font-weight: 700; background: {% if submission.final_marks >= 70 %}#d4edda; color: #155724;{% elif submission.final_marks >= 50 %}#fff3cd; color: #856404;{% else %}#f8d7da; color: #721c24;{% endif %};">
+                                        {{ "%.1f"|format(submission.final_marks) }}/100
+                                    </div>
+                                    <div style="padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.9rem;">
+                                            <div><strong>Topic Match:</strong> {{ "%.1f"|format(submission.topic_match_score) }}/30</div>
+                                            <div><strong>Accuracy:</strong> {{ "%.1f"|format(submission.accuracy_score) }}/25</div>
+                                            <div><strong>Structure:</strong> {{ "%.1f"|format(submission.structure_score) }}/20</div>
+                                            <div><strong>Visual:</strong> {{ "%.1f"|format(submission.visual_score) }}/15</div>
+                                        </div>
+                                        <div style="margin-top: 10px;"><strong>Technical:</strong> {{ "%.1f"|format(submission.technical_score) }}/10</div>
+                                    </div>
+                                    <div style="padding: 12px; background: {% if submission.is_hand_drawn %}#d4edda{% else %}#f8d7da{% endif %}; border-radius: 8px; border-left: 4px solid {% if submission.is_hand_drawn %}#28a745{% else %}#dc3545{% endif %}; margin-top: 15px;">
+                                        <strong>Status:</strong> {{ submission.marks_status or 'Evaluated' }}<br>
+                                        <small>{% if submission.is_hand_drawn %}<i class="fas fa-pencil-alt"></i> Hand-Drawn{% else %}<i class="fas fa-print"></i> Printed/Digital{% endif %}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Guidebot Chatbot -->
+    <div id="guidebot-container" class="guidebot-container">
+        <div id="guidebot-window" class="guidebot-window">
+            <div class="guidebot-header">
+                <div class="guidebot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="guidebot-info">
+                    <h3>Guidebot</h3>
+                    <span class="guidebot-status">Online</span>
+                </div>
+                <button class="guidebot-close" id="guidebot-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="guidebot-messages" id="guidebot-messages">
+                <div class="guidebot-message bot-message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>Hello! I'm <strong>Guidebot</strong>, your AI assistant. How can I help you today? 😊</p>
+                        <div class="guidebot-options" id="guidebot-options">
+                            <button class="guidebot-option-btn" data-option="upload-assignment">
+                                <i class="fas fa-upload"></i>
+                                <span>How to Upload Assignment</span>
+                            </button>
+                            <button class="guidebot-option-btn" data-option="chat-guide">
+                                <i class="fas fa-comments"></i>
+                                <span>Chat with Guide</span>
+                            </button>
+                            <button class="guidebot-option-btn" data-option="suggestions">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>Submit Suggestions</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="guidebot-input-container">
+                <input type="text" id="guidebot-input" class="guidebot-input" placeholder="Ask me anything...">
+                <button id="guidebot-send" class="guidebot-send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        <button id="guidebot-toggle" class="guidebot-toggle">
+            <i class="fas fa-comments"></i>
+            <span class="guidebot-badge">1</span>
+        </button>
+    </div>
+
+    <!-- Floating particles for effect -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- MCQ Modal -->
+    <div id="mcqModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="modal-content glass-card" style="max-width: 700px; width: 90%; margin: auto; background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%); border: 2px solid rgba(102, 126, 234, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); border-radius: 20px; padding: 0; overflow: hidden; position: relative;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 30px; text-align: center; border-bottom: 3px solid rgba(255, 255, 255, 0.2);">
+                <h2 style="margin: 0 0 15px 0; font-size: 1.8rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">⚡ Quick Verification Question</h2>
+                <div id="mcqTimer" style="font-size: 3rem; color: #fff; font-weight: 900; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background: rgba(255, 255, 255, 0.2); border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid rgba(255, 255, 255, 0.4);">15</div>
+            </div>
+            <div class="modal-body" style="padding: 35px 30px; background: #fff;">
+                <div id="mcqContent" style="color: #1a1a1a;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Diagram Evaluation Functions
+        let selectedDiagramAssignmentId = null;
+
+        function switchLearnerDiagramTab(tab) {
+            document.querySelectorAll('.learner-diagram-subtab').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('#diagram-evaluation .tab-btn').forEach(btn => {
+                btn.style.borderBottomColor = 'transparent';
+                btn.style.color = 'var(--text-secondary)';
+            });
+            event.target.style.borderBottomColor = 'var(--accent-primary)';
+            event.target.style.color = 'var(--accent-primary)';
+            document.getElementById('learner-diagram-' + tab + '-tab').style.display = 'block';
+        }
+
+        function selectDiagramAssignment(id, topic) {
+            selectedDiagramAssignmentId = id;
+            document.getElementById('selected-diagram-topic').textContent = 'Submit for: ' + topic;
+            document.getElementById('learner-upload-section').style.display = 'block';
+            document.getElementById('learner-upload-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('learner-upload-area');
+            const fileInput = document.getElementById('learner-diagram-file');
+            
+            if (uploadArea && fileInput) {
+                uploadArea.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            document.getElementById('learner-image-preview').innerHTML = 
+                                `<img src="${ev.target.result}" style="max-width: 100%; max-height: 400px; border-radius: 10px; margin: 20px 0;">`;
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+        });
+
+        async function submitLearnerDiagram() {
+            if (!selectedDiagramAssignmentId) {
+                alert('Please select an assignment first');
+                return;
+            }
+            const fileInput = document.getElementById('learner-diagram-file');
+            if (!fileInput || !fileInput.files[0]) {
+                alert('Please upload a diagram');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('assignment_id', selectedDiagramAssignmentId);
+            formData.append('diagram', fileInput.files[0]);
+            formData.append('description', document.getElementById('learner-diagram-description').value || '');
+            const btn = document.getElementById('submit-learner-diagram-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Evaluating...';
+            try {
+                const response = await fetch('{{ url_for("submit_diagram") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {'X-CSRFToken': '{{ csrf_token() }}'}
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Diagram submitted successfully!');
+                    location.reload();
+                } else {
+                    alert('❌ Error: ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Diagram';
+            }
+        }
+
+        //learner_dashbaord.js
+        document.addEventListener('DOMContentLoaded', function () {
+            // Load learning progress on page load
+            updateLearningProgress();
+            
+            // Theme Management
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            const themeIcon = themeToggle.querySelector('i');
+
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            html.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+
+            function updateThemeIcon(theme) {
+                themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+
+            // Tab switching functionality
+            const menuLinks = document.querySelectorAll('.menu-link');
+            const sections = document.querySelectorAll('.content-section');
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const href = link.getAttribute('href');
+                    // Check if it's an internal section link
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        // Remove active class from all links
+                        menuLinks.forEach(l => l.classList.remove('active'));
+                        // Hide all sections (force hide to prevent duplication)
+                        sections.forEach(s => {
+                            s.classList.remove('active');
+                            s.style.display = 'none';
+                        });
+
+                        // Add active class to clicked link
+                        link.classList.add('active');
+                        // Show target section
+                        const targetId = href.substring(1);
+                        const targetSection = document.getElementById(targetId);
+                        if (targetSection) {
+                            targetSection.classList.add('active');
+                            targetSection.style.display = 'block'; // Force show
+                        }
+                    }
+                    // If it's not a section link (e.g., messages), let it navigate normally
+                });
+            });
+
+            // Course materials functionality
+            const viewMaterialsButtons = document.querySelectorAll('.view-materials');
+            viewMaterialsButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const courseId = button.dataset.courseId;
+                    const materialsList = document.getElementById(`materials-${courseId}`);
+
+                    if (materialsList.style.display === 'none') {
+                        try {
+                            const response = await fetch(`/api/course/${courseId}/materials`);
+                            const data = await response.json();
+
+                            if (data.success) {
+                                // Clear existing materials
+                                materialsList.innerHTML = '';
+
+                                if (data.materials.length === 0) {
+                                    materialsList.innerHTML = '<p>No materials available for this course.</p>';
+                                } else {
+                                    const ul = document.createElement('ul');
+                                    ul.className = 'materials-items';
+
+                                    data.materials.forEach(material => {
+                                        const li = document.createElement('li');
+                                        li.className = 'material-item';
+                                        li.innerHTML = `
+                                    <div class="material-info">
+                                        <strong>${material.file_name}</strong>
+                                        <span>(${material.file_type.toUpperCase()})</span>
+                                    </div>
+                                    <div class="material-meta">
+                                        <span>Size: ${material.file_size.toFixed(2)} MB</span>
+                                        <span>Added: ${material.created_at}</span>
+                                    </div>
+                                    <a href="/download/${material.file_path.split('/').pop()}" 
+                                       class="btn download-btn" target="_blank">
+                                        Download
+                                    </a>
+                                `;
+                                        ul.appendChild(li);
+                                    });
+                                    materialsList.appendChild(ul);
+                                }
+                            } else {
+                                materialsList.innerHTML = `<p class="error">${data.message}</p>`;
+                            }
+                        } catch (error) {
+                            console.error('Error fetching materials:', error);
+                            materialsList.innerHTML = '<p class="error">Error loading materials. Please try again.</p>';
+                        }
+                        materialsList.style.display = 'block';
+                        button.textContent = 'Hide Materials';
+                    } else {
+                        materialsList.style.display = 'none';
+                        button.textContent = 'View Materials';
+                    }
+                });
+            });
+
+            // Show the announcements section by default (using class, not inline style)
+            // This is already handled by the 'active' class in HTML
+        });
+
+        // Theme toggle event listener is already defined in DOMContentLoaded
+
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        // Navigation Menu
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const targetSection = link.getAttribute('data-section');
+                
+                if (!targetSection) {
+                    // If no data-section, it's a regular link (like messages), let it navigate normally
+                    return;
+                }
+
+                // Update active menu link
+                menuLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Hide ALL sections first (important to prevent duplication)
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    section.style.display = 'none'; // Force hide to prevent any CSS conflicts
+                });
+
+                // Show only the target section
+                const targetElement = document.getElementById(targetSection);
+                if (targetElement) {
+                    targetElement.classList.add('active');
+                    targetElement.style.display = 'block'; // Force show
+
+                    // Scroll to top of content
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // Update URL hash
+                window.location.hash = targetSection;
+            });
+        });
+
+        // Handle initial hash navigation
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                const targetLink = document.querySelector(`[data-section="${hash}"]`);
+                if (targetLink) {
+                    targetLink.click();
+                }
+            }
+        });
+
+        // Modal Management
+        const modal = document.getElementById('materialsModal');
+        const modalClose = document.querySelector('.modal-close');
+        const modalCourseName = document.getElementById('modalCourseName');
+        const materialsTableBody = document.getElementById('materialsTableBody');
+
+        // View Materials Button
+        const viewMaterialsBtns = document.querySelectorAll('.view-materials-btn');
+
+        viewMaterialsBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const courseId = btn.getAttribute('data-course-id');
+                const courseName = btn.closest('.course-card').querySelector('h3').textContent;
+
+                // Show loading state
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                btn.disabled = true;
+
+                try {
+                    await loadCourseMaterials(courseId, courseName);
+                    openModal();
+                } catch (error) {
+                    console.error('Error loading materials:', error);
+                    alert('Failed to load course materials. Please try again.');
+                } finally {
+                    btn.innerHTML = '<i class="fas fa-folder-open"></i> View Materials';
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        async function loadCourseMaterials(courseId, courseName) {
+            modalCourseName.textContent = `${courseName} - Materials`;
+
+            try {
+                const response = await fetch(`/api/course/${courseId}/materials`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderMaterials(data.materials);
+                } else {
+                    throw new Error(data.message || 'Failed to load materials');
+                }
+            } catch (error) {
+                console.error('Error loading materials:', error);
+                materialsTableBody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--error-color); opacity: 0.5;"></i>
+                    <p style="color: var(--error-color); margin-top: 10px;">${error.message || 'Error loading materials. Please try again.'}</p>
+                </td>
+            </tr>
+        `;
+            }
+        }
+
+        function renderMaterials(materials) {
+            materialsTableBody.innerHTML = '';
+
+            if (materials.length === 0) {
+                materialsTableBody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-inbox" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.5;"></i>
+                    <p style="color: var(--text-secondary); margin-top: 10px;">No materials available yet.</p>
+                </td>
+            </tr>
+        `;
+                return;
+            }
+
+            materials.forEach(material => {
+                const row = document.createElement('tr');
+                row.style.animation = 'slideUp 0.5s ease-out';
+
+                const fileIcon = getFileIcon(material.file_type);
+                const fileName = material.file_path.split('/').pop();
+
+                row.innerHTML = `
+            <td data-label="File Name">
+                <i class="${fileIcon}" style="margin-right: 8px;"></i>
+                ${material.file_name}
+            </td>
+            <td data-label="Type">
+                <span class="badge">${material.file_type.toUpperCase()}</span>
+            </td>
+            <td data-label="Size">${material.file_size.toFixed(2)} MB</td>
+            <td data-label="Uploaded">${formatDate(material.created_at)}</td>
+            <td data-label="Actions">
+                <a href="/download/${fileName}" class="btn btn-download">
+                    <i class="fas fa-download"></i> Download
+                </a>
+                <button class="btn btn-primary" onclick="markAsRead(${material.id})">
+                    <i class="fas fa-check"></i> Mark Read
+                </button>
+            </td>
+        `;
+
+                materialsTableBody.appendChild(row);
+            });
+        }
+
+        function getFileIcon(fileType) {
+            const icons = {
+                'pdf': 'fas fa-file-pdf',
+                'doc': 'fas fa-file-word',
+                'docx': 'fas fa-file-word',
+                'xls': 'fas fa-file-excel',
+                'xlsx': 'fas fa-file-excel',
+                'ppt': 'fas fa-file-powerpoint',
+                'pptx': 'fas fa-file-powerpoint',
+                'jpg': 'fas fa-file-image',
+                'jpeg': 'fas fa-file-image',
+                'png': 'fas fa-file-image',
+                'mp4': 'fas fa-file-video',
+                'mp3': 'fas fa-file-audio',
+                'zip': 'fas fa-file-archive'
+            };
+
+            return icons[fileType.toLowerCase()] || 'fas fa-file';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function openModal() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal events
+        modalClose.addEventListener('click', closeModal);
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Mark as Read Function
+        async function markAsRead(materialId) {
+            const btn = event.target.closest('button');
+            const originalContent = btn.innerHTML;
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Marking...';
+
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                const response = await fetch(`/api/material/${materialId}/mark-read`, {
+                    method: 'POST',
+                    headers: headers
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> Read!';
+                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+
+                    setTimeout(() => {
+                        btn.innerHTML = originalContent;
+                        btn.style.background = '';
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Failed to mark as read');
+                }
+            } catch (error) {
+                console.error('Error marking as read:', error);
+                btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error';
+                btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Smooth Scrolling for all anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 0.6s ease-out forwards';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Add hover sound effect (optional - uncomment if desired)
+        /*
+        const hoverSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BdGAg+ltryxnMpBSl+zPLaizsIGGS57OihURALTKXh8bllHAU2jdXzzn0vBSF1xe/glEILElyx6OyrWBUIQ5zd8sFuJAUuhM/z1YU2Bhxqvu7mnEoODlOq5O+zYBkIP5HY88h2KwUme8rx3I4+CRdjuOrloFIRC0uh4PK8aB8GM4nU8tGAMQYfcsLu45ZFDBFYr+ftrVoXCECY2/PEcSYELIHO8diJOQcZaLvt559NEAxPqOPwtmMcBjiP1/PMeS0GI3fH8N2RQAoUXrTp66hVFApGnt/yvmwhBTCG0fPTgjQGHW/A7eSaSQ0PVqzn77BdGAg+ltrzxnUoBSh+zPLaizsIGGS56+mjUhAKTKXh8bllHAU1jdXzzn0vBSF1xe/glEILElyx6OyrWRUIRJzd8sFuJAUuhM/z1YU2Bhxqvu7mnEoPDlOq5O+zYRkIP5HY88h2KwUme8rx3I4+CRdjuOz');
+        hoverSound.volume = 0.1;
+        
+        document.querySelectorAll('.btn, .menu-link, .course-card').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                hoverSound.currentTime = 0;
+                hoverSound.play().catch(() => {});
+            });
+        });
+        */
+
+        // Progress Bar Animation
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            const targetWidth = progressFill.style.width;
+            progressFill.style.width = '0';
+
+            setTimeout(() => {
+                progressFill.style.width = targetWidth;
+            }, 500);
+        }
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+
+                this.appendChild(ripple);
+
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add ripple styles dynamically
+        const style = document.createElement('style');
+        style.textContent = `
+    .btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: scale(0);
+        animation: ripple-animation 0.6s ease-out;
+        pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+        document.head.appendChild(style);
+
+        // Prevent modal from closing when clicking inside modal content
+        document.querySelector('.modal-content').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Auto-update time badges (for future real-time features)
+        function updateTimeBadges() {
+            document.querySelectorAll('[data-timestamp]').forEach(element => {
+                const timestamp = element.getAttribute('data-timestamp');
+                const date = new Date(timestamp);
+                element.textContent = getTimeAgo(date);
+            });
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+                }
+            }
+
+            return 'just now';
+        }
+
+        // Update time badges every minute
+        setInterval(updateTimeBadges, 60000);
+
+        // Performance optimization: Lazy load images
+        const lazyImages = document.querySelectorAll('img[data-src]');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+
+        lazyImages.forEach(img => imageObserver.observe(img));
+
+        // Console welcome message
+        console.log('%c🎓 Welcome to Learning Platform!', 'color: #6366f1; font-size: 20px; font-weight: bold;');
+        console.log('%cEnjoy your learning journey!', 'color: #8b5cf6; font-size: 14px;');
+
+        // Prevent context menu on production (optional)
+        // document.addEventListener('contextmenu', e => e.preventDefault());
+
+
+
+
+
+
+
+        // Load assignments when section is activated
+        document.querySelector('a[href="#assignments"]').addEventListener('click', loadLearnerAssignments);
+
+        let currentAssignment = null;
+        let questionUploads = {};
+
+        // Load and update learning progress
+        async function updateLearningProgress() {
+            try {
+                const response = await fetch('/learner/progress');
+                const data = await response.json();
+
+                if (data.success) {
+                    const progressFill = document.getElementById('progress-fill');
+                    const progressText = document.getElementById('progress-text');
+                    
+                    if (progressFill && progressText) {
+                        // Animate progress bar
+                        const percentage = data.progress_percentage;
+                        progressFill.style.width = '0%';
+                        setTimeout(() => {
+                            progressFill.style.width = percentage + '%';
+                        }, 100);
+                        
+                        // Update progress text
+                        if (data.total_assignments === 0) {
+                            progressText.textContent = 'No assignments yet';
+                        } else {
+                            progressText.innerHTML = `
+                                <i class="fas fa-check-circle"></i> ${data.submitted_assignments} of ${data.total_assignments} submitted<br>
+                                <small style="color: var(--text-secondary);">${data.pending_assignments} pending</small>
+                            `;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading learning progress:', error);
+                const progressText = document.getElementById('progress-text');
+                if (progressText) {
+                    progressText.textContent = 'Unable to load progress';
+                }
+            }
+        }
+
+        // Auto-refresh progress every 30 seconds (moved to avoid duplicate DOMContentLoaded)
+        setInterval(updateLearningProgress, 30000);
+
+        // Profile Picture Edit Functions
+        function openEditPhotoModal() {
+            const modal = document.getElementById('editPhotoModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeEditPhotoModal() {
+            const modal = document.getElementById('editPhotoModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+                document.getElementById('updatePhotoForm').reset();
+                document.getElementById('photo-preview').style.display = 'none';
+            }
+        }
+
+        // Preview photo before upload
+        document.getElementById('profile_photo_input')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('photo-preview');
+            const previewImg = document.getElementById('photo-preview-img');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Handle profile photo update
+        document.getElementById('updatePhotoForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            
+            try {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const headers = {};
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                const response = await fetch('/update_profile_picture', {
+                    method: 'POST',
+                    body: formData,
+                    headers: headers
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update profile photo in the UI
+                    const profileImg = document.getElementById('profile-photo-img');
+                    const profileIcon = document.getElementById('profile-photo-icon');
+                    
+                    if (profileImg) {
+                        profileImg.src = data.photo_url + '?t=' + new Date().getTime();
+                    } else if (profileIcon) {
+                        profileIcon.style.display = 'none';
+                        const avatarDiv = profileIcon.parentElement;
+                        const newImg = document.createElement('img');
+                        newImg.id = 'profile-photo-img';
+                        newImg.src = data.photo_url + '?t=' + new Date().getTime();
+                        newImg.alt = 'Profile';
+                        avatarDiv.appendChild(newImg);
+                    }
+                    
+                    // Close modal and show success message
+                    closeEditPhotoModal();
+                    alert('Profile picture updated successfully!');
+                    
+                    // Reload page to update all instances
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    alert(data.message || 'Error updating profile picture');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error updating profile picture:', error);
+                alert('An error occurred while updating your profile picture');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('editPhotoModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditPhotoModal();
+            }
+        });
+
+        async function loadLearnerAssignments() {
+            try {
+                const response = await fetch('/learner/assignments');
+                const data = await response.json();
+
+                if (data.success) {
+                    displayLearnerAssignments(data.assignments);
+                    // Update progress when assignments are loaded
+                    updateLearningProgress();
+                }
+            } catch (error) {
+                console.error('Error loading assignments:', error);
+            }
+        }
+
+        function displayLearnerAssignments(assignments) {
+            const container = document.getElementById('assignments-container');
+
+            if (assignments.length === 0) {
+                container.innerHTML = `
+            <div class="glass-card empty-state">
+                <i class="fas fa-clipboard"></i>
+                <p>No assignments available yet.</p>
+            </div>
+        `;
+                return;
+            }
+
+            container.innerHTML = assignments.map(assignment => {
+                const deadline = new Date(assignment.deadline);
+                const now = new Date();
+                const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+
+                let deadlineClass = 'ok';
+                if (daysLeft < 0) deadlineClass = 'urgent';
+                else if (daysLeft < 3) deadlineClass = 'urgent';
+                else if (daysLeft < 7) deadlineClass = 'upcoming';
+
+                return `
+            <div class="assignment-card">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <h3>${assignment.name}</h3>
+                        <p style="color: var(--text-secondary);">${assignment.course_name}</p>
+                    </div>
+                    <span class="deadline-badge ${deadlineClass}">
+                        <i class="fas fa-clock"></i> ${daysLeft < 0 ? 'Overdue' : `${daysLeft} days left`}
+                    </span>
+                </div>
+                
+                <div class="assignment-meta">
+                    <span><i class="fas fa-calendar"></i> Deadline: ${assignment.deadline_formatted}</span>
+                    <span><i class="fas fa-star"></i> Total Marks: ${assignment.total_marks}</span>
+                    <span><i class="fas fa-question-circle"></i> Questions: ${assignment.question_count}</span>
+                </div>
+                
+                ${assignment.instructions ? `<p style="margin-top: 15px;">${assignment.instructions}</p>` : ''}
+                
+                <div style="margin-top: 20px;">
+                    ${assignment.is_submitted ? `
+                        <button class="btn btn-primary" onclick="viewSubmission(${assignment.id})">
+                            <i class="fas fa-eye"></i> View Submission & Results
+                        </button>
+                    ` : `
+                        <button class="btn btn-primary" onclick="startAssignment(${assignment.id})">
+                            <i class="fas fa-pencil-alt"></i> Start Assignment
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+            }).join('');
+        }
+
+        async function startAssignment(assignmentId) {
+            try {
+                const response = await fetch(`/learner/assignments/${assignmentId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentAssignment = data.assignment;
+                    questionUploads = {};
+                    displayAssignmentForm(data.assignment);
+                }
+            } catch (error) {
+                console.error('Error loading assignment:', error);
+            }
+        }
+
+        function displayAssignmentForm(assignment) {
+            const container = document.getElementById('assignments-container');
+
+            container.innerHTML = `
+        <button class="btn" onclick="loadLearnerAssignments()" style="margin-bottom: 20px;">
+            ← Back to Assignments
+        </button>
+        
+        <div class="glass-card">
+            <h2>${assignment.name}</h2>
+            <p style="color: var(--text-secondary);">Answer each question by uploading images of your handwritten answers</p>
+            
+            <form id="assignmentSubmitForm" style="margin-top: 30px;">
+                ${assignment.questions.map((q, idx) => `
+                    <div class="question-upload-section">
+                        <h3>Question ${idx + 1} (${q.marks} marks)</h3>
+                        <p style="margin: 15px 0; line-height: 1.8;">${q.question_text}</p>
+                        
+                        <div class="upload-area" onclick="document.getElementById('upload-q${q.id}').click()">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 10px;"></i>
+                            <p>Click to upload answer images</p>
+                            <small style="color: var(--text-secondary);">You can upload multiple images per question</small>
+                        </div>
+                        
+                        <input type="file" id="upload-q${q.id}" accept="image/*" multiple style="display: none;" onchange="handleFileUpload(${q.id}, this.files)">
+                        
+                        <div id="preview-q${q.id}" class="upload-preview"></div>
+                    </div>
+                `).join('')}
+                
+                <button type="submit" class="btn btn-primary" style="margin-top: 30px; width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Submit Assignment
+                </button>
+            </form>
+        </div>
+    `;
+
+            document.getElementById('assignmentSubmitForm').addEventListener('submit', submitAssignment);
+        }
+
+        function handleFileUpload(questionId, files) {
+            if (!questionUploads[questionId]) {
+                questionUploads[questionId] = [];
+            }
+
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    questionUploads[questionId].push(file);
+                }
+            });
+
+            displayPreviews(questionId);
+        }
+
+        function displayPreviews(questionId) {
+            const container = document.getElementById(`preview-q${questionId}`);
+            const files = questionUploads[questionId] || [];
+
+            container.innerHTML = files.map((file, idx) => `
+        <div class="preview-image">
+            <img src="${URL.createObjectURL(file)}" alt="Preview">
+            <button type="button" class="remove-image" onclick="removeImage(${questionId}, ${idx})">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+        }
+
+        function removeImage(questionId, idx) {
+            questionUploads[questionId].splice(idx, 1);
+            displayPreviews(questionId);
+        }
+
+        // First submitAssignment function removed as it's duplicated below
+
+        function displaySubmissionResults(results) {
+            const container = document.getElementById('assignments-container');
+
+            container.innerHTML = `
+        <button class="btn" onclick="loadLearnerAssignments()" style="margin-bottom: 20px;">
+            ← Back to Assignments
+        </button>
+        
+        <div class="glass-card">
+            <h2><i class="fas fa-check-circle" style="color: var(--success);"></i> Assignment Submitted!</h2>
+            
+            <div class="score-display" style="margin: 30px 0;">
+                ${results.scores_visible ? `
+                    Total Score: ${results.total_score} / ${results.total_marks}
+                    <p style="font-size: 1rem; color: var(--text-secondary); margin-top: 10px;">
+                        ${((results.total_score / results.total_marks) * 100).toFixed(1)}%
+                    </p>
+                ` : `
+                    <p style="font-size: 1.2rem; color: var(--text-secondary);">
+                        Scores will be visible once your guide releases them
+                    </p>
+                `}
+            </div>
+            
+            ${results.is_flagged ? `
+                <div class="feedback-box" style="background: rgba(239, 68, 68, 0.1); border-color: var(--error);">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Attention Required:</strong>
+                    <p>${results.flag_reason}</p>
+                </div>
+            ` : ''}
+            
+            ${results.answers.map((answer, idx) => `
+                <div class="result-section">
+                    <h3>Question ${idx + 1}</h3>
+                    
+                    <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; margin: 10px 0;">
+                        <strong>Extracted Text:</strong>
+                        <p style="margin-top: 10px; white-space: pre-wrap;">${answer.extracted_text || 'Unable to extract text'}</p>
+                    </div>
+                    
+                    ${results.scores_visible ? `
+                        <div style="text-align: center; margin: 15px 0;">
+                            <strong style="font-size: 1.5rem; color: var(--accent-primary);">
+                                ${answer.total_score} / ${answer.max_marks}
+                            </strong>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="feedback-box">
+                        <strong><i class="fas fa-robot"></i> AI Feedback:</strong>
+                        <p>${answer.feedback}</p>
+                        
+                        ${answer.covered_points.length > 0 ? `
+                            <div style="margin-top: 15px;">
+                                <strong>✅ Key Points Covered:</strong>
+                                <ul style="margin-top: 10px;">
+                                    ${answer.covered_points.map(point => `<li>${point}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${answer.missing_points.length > 0 ? `
+                            <div style="margin-top: 15px;">
+                                <strong>❌ Areas for Improvement:</strong>
+                                <ul style="margin-top: 10px;">
+                                    ${answer.missing_points.map(point => `<li>${point}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+        }
+
+        async function viewSubmission(assignmentId) {
+            try {
+                const response = await fetch(`/learner/assignments/${assignmentId}/submission`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displaySubmissionResults(data.results);
+                }
+            } catch (error) {
+                console.error('Error loading submission:', error);
+            }
+        }
+
+        async function submitAssignment(e) {
+            e.preventDefault();
+
+            const allQuestionsAnswered = currentAssignment.questions.every(q =>
+                questionUploads[q.id] && questionUploads[q.id].length > 0
+            );
+
+            if (!allQuestionsAnswered) {
+                alert('Please upload answers for all questions');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('assignment_id', currentAssignment.id);
+
+            currentAssignment.questions.forEach(q => {
+                const files = questionUploads[q.id] || [];
+                files.forEach(file => {
+                    formData.append(`question_${q.id}`, file);
+                });
+            });
+
+            // Get CSRF token from meta tag or form
+            let csrfToken = '';
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta) {
+                csrfToken = csrfMeta.getAttribute('content');
+            } else {
+                // Try to get from hidden input
+                const csrfInput = document.querySelector('input[name="csrf_token"]');
+                if (csrfInput) {
+                    csrfToken = csrfInput.value;
+                }
+            }
+
+            // Add CSRF token to form data if available
+            if (csrfToken) {
+                formData.append('csrf_token', csrfToken);
+            }
+
+            try {
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const headers = {};
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                const response = await fetch('/learner/assignments/submit', {
+                    method: 'POST',
+                    body: formData,
+                    headers: headers
+                });
+
+                // Check if response is OK before parsing JSON
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error response:', errorText);
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        throw new Error(errorData.message || `Server error: ${response.status}`);
+                    } catch (parseError) {
+                        throw new Error(`Server error (${response.status}): ${errorText.substring(0, 200)}`);
+                    }
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log('Assignment submitted successfully!', data);
+                    console.log('Answer IDs received:', data.answer_ids);
+                    
+                    // Show MCQ for each answer BEFORE showing results
+                    if (data.answer_ids && data.answer_ids.length > 0) {
+                        console.log('Starting MCQ sequence for', data.answer_ids.length, 'answers');
+                        await showMCQsSequentially(data.answer_ids);
+                        console.log('MCQ sequence completed');
+                    } else {
+                        console.warn('No answer_ids received in submission response');
+                    }
+                    
+                    displaySubmissionResults(data.results);
+                    // Update learning progress after successful submission
+                    updateLearningProgress();
+                } else {
+                    // Show detailed error message
+                    const errorMsg = data.message || 'Submission failed. Please try again.';
+                    alert('❌ ' + errorMsg);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Assignment';
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                let errorMsg = 'Network error: Could not connect to server. ';
+                if (error.message) {
+                    errorMsg += error.message;
+                } else {
+                    errorMsg += 'Please check your internet connection and try again.';
+                }
+                alert('❌ ' + errorMsg);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Assignment';
+            }
+        }
+
+        async function showMCQsSequentially(answerIds) {
+            console.log('showMCQsSequentially called with answerIds:', answerIds);
+            if (!answerIds || answerIds.length === 0) {
+                console.warn('No answer IDs provided for MCQ sequence');
+                return;
+            }
+            
+            for (let i = 0; i < answerIds.length; i++) {
+                const answerId = answerIds[i];
+                console.log(`Showing MCQ ${i + 1}/${answerIds.length} for answer_id: ${answerId}`);
+                await showMCQModal(answerId);
+                console.log(`MCQ ${i + 1} completed`);
+            }
+            console.log('All MCQs completed');
+        }
+
+        function showMCQModal(answerId) {
+            return new Promise(async (resolve) => {
+                console.log(`Fetching MCQ for answer_id: ${answerId}`);
+                try {
+                    const response = await fetch(`/learner/assignments/mcq/${answerId}`);
+                    
+                    if (!response.ok) {
+                        console.error(`MCQ fetch failed: ${response.status} ${response.statusText}`);
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                        resolve();
+                        return;
+                    }
+                    
+                    const data = await response.json();
+                    console.log('MCQ response:', data);
+
+                    if (!data.success) {
+                        console.error('MCQ error:', data.message || 'Unknown error');
+                        // Show error to user but continue
+                        if (data.message && !data.message.includes('already answered')) {
+                            console.warn('MCQ not available:', data.message);
+                            // Show alert to user
+                            alert('⚠️ MCQ not available: ' + data.message);
+                        }
+                        resolve();
+                        return;
+                    }
+                    
+                    if (!data.mcq) {
+                        console.error('MCQ data missing in response');
+                        resolve();
+                        return;
+                    }
+
+                    const modal = document.getElementById('mcqModal');
+                    if (!modal) {
+                        console.error('MCQ modal element not found!');
+                        resolve();
+                        return;
+                    }
+                    
+                    const content = document.getElementById('mcqContent');
+                    const timerDisplay = document.getElementById('mcqTimer');
+                    
+                    if (!content || !timerDisplay) {
+                        console.error('MCQ modal content elements not found!');
+                        resolve();
+                        return;
+                    }
+                    
+                    console.log('Displaying MCQ modal');
+
+                    const mcq = data.mcq;
+
+                    content.innerHTML = `
+                <div style="margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 25px; font-size: 1.4rem; font-weight: 700; color: #1a1a1a; line-height: 1.6; text-align: center; padding: 20px; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%); border-radius: 12px; border-left: 4px solid #667eea;">${mcq.question}</h3>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        ${Object.entries(mcq.options).map(([key, value]) => `
+                            <button class="mcq-option btn" data-option="${key}">
+                                <strong>${key}.</strong> <span style="color: #2d3748;">${value}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+                    modal.style.display = 'flex';
+
+                    let timeLeft = 15;
+                    let selectedOption = null;
+                    const startTime = Date.now();
+
+                    // Update timer display immediately
+                    timerDisplay.textContent = timeLeft;
+
+                    const timer = setInterval(() => {
+                        timeLeft--;
+                        timerDisplay.textContent = timeLeft;
+                        
+                        // Visual feedback as time runs out
+                        if (timeLeft <= 5) {
+                            timerDisplay.style.color = '#ef4444';
+                            timerDisplay.style.transform = 'scale(1.1)';
+                            timerDisplay.style.transition = 'all 0.3s ease';
+                        } else if (timeLeft <= 10) {
+                            timerDisplay.style.color = '#f59e0b';
+                        }
+
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            submitMCQ(answerId, mcq, selectedOption, startTime);
+                            modal.style.display = 'none';
+                            resolve();
+                        }
+                    }, 1000);
+
+                    // Handle option selection
+                    content.querySelectorAll('.mcq-option').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            clearInterval(timer);
+                            selectedOption = this.getAttribute('data-option');
+
+                            // Visual feedback
+                            content.querySelectorAll('.mcq-option').forEach(b => {
+                                b.style.opacity = '0.5';
+                                b.style.transform = 'scale(0.98)';
+                            });
+                            this.style.opacity = '1';
+                            this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                            this.style.color = '#fff';
+                            this.style.borderColor = '#667eea';
+                            this.style.transform = 'scale(1.05)';
+                            this.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
+                            this.querySelector('span').style.color = '#fff';
+                            this.querySelector('strong').style.color = '#fff';
+
+                            setTimeout(() => {
+                                submitMCQ(answerId, mcq, selectedOption, startTime);
+                                modal.style.display = 'none';
+                                resolve();
+                            }, 500);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('MCQ modal error:', error);
+                    resolve();
+                }
+            });
+        }
+
+        async function submitMCQ(answerId, mcq, selectedOption, startTime) {
+            const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+
+            try {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                console.log('Submitting MCQ:', {
+                    answer_id: answerId,
+                    selected_option: selectedOption,
+                    correct_option: mcq.correct,
+                    time_taken: timeTaken
+                });
+                
+                const response = await fetch('/learner/assignments/mcq/submit', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        answer_id: answerId,
+                        mcq_type: mcq.type,
+                        selected_option: selectedOption || '',
+                        correct_option: mcq.correct,
+                        time_taken: timeTaken,
+                        mcq_question: mcq.question,
+                        options: mcq.options
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('MCQ submit failed:', response.status, errorText);
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('MCQ submit response:', data);
+                
+                if (!data.success) {
+                    console.error('MCQ submit error:', data.message);
+                    throw new Error(data.message || 'Failed to submit MCQ');
+                }
+                
+                console.log(`✅ MCQ submitted successfully! Answer: ${data.is_correct ? 'Correct' : 'Incorrect'}`);
+                
+            } catch (error) {
+                console.error('MCQ submit error:', error);
+                // Don't show alert to user as it might be annoying during auto-submit
+                // The error is logged for debugging
+            }
+        }
+
+      
+        // ==================== DOCUMENT CHAT FUNCTIONS ====================
+        
+        let selectedCourseId = null;
+        let selectedDocumentId = null;
+        let lastChatText = '';
+
+        // Load courses when Document Chat tab is opened
+        document.addEventListener('DOMContentLoaded', function() {
+            const documentChatLink = document.querySelector('a[href="#document-chat"]');
+            if (documentChatLink) {
+                documentChatLink.addEventListener('click', function() {
+                    setTimeout(loadChatCourses, 100);
+                });
+            }
+            
+            // Handle Enter key in chat input
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendChatMessage();
+                    }
+                });
+            }
+            
+            // Set up course select change listener (only once)
+            const courseSelect = document.getElementById('chat-course-select');
+            if (courseSelect) {
+                // Remove any existing listeners by cloning
+                const newSelect = courseSelect.cloneNode(true);
+                courseSelect.parentNode.replaceChild(newSelect, courseSelect);
+                
+                // Add the event listener
+                newSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        selectedCourseId = parseInt(this.value);
+                        loadChatDocuments(selectedCourseId);
+                    } else {
+                        // Reset to course selection
+                        document.getElementById('chat-step-course').style.display = 'block';
+                        document.getElementById('chat-step-document').style.display = 'none';
+                        document.getElementById('chat-step-chat').style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        async function loadChatCourses() {
+            const select = document.getElementById('chat-course-select');
+            if (!select) return;
+            
+            try {
+                const response = await fetch('/learner/document-chat/courses');
+                if (!response.ok) {
+                    throw new Error('Failed to load courses');
+                }
+                const courses = await response.json();
+                
+                // Clear existing options except the first one
+                select.innerHTML = '<option value="">Choose a course...</option>';
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.id;
+                    option.textContent = course.name;
+                    select.appendChild(option);
+                });
+                
+                console.log('Courses loaded:', courses.length);
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                const select = document.getElementById('chat-course-select');
+                if (select) {
+                    select.innerHTML = '<option value="">Error loading courses</option>';
+                }
+            }
+        }
+
+        async function loadChatDocuments(courseId) {
+            const documentsList = document.getElementById('chat-documents-list');
+            if (!documentsList) {
+                console.error('Documents list element not found');
+                return;
+            }
+            
+            documentsList.innerHTML = '<p class="text-secondary"><i class="fas fa-spinner fa-spin"></i> Loading documents...</p>';
+            
+            try {
+                console.log('Loading documents for course:', courseId);
+                const response = await fetch(`/learner/document-chat/documents/${courseId}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({error: 'Unknown error'}));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
+                const documents = await response.json();
+                console.log('Documents received:', documents);
+                
+                if (!Array.isArray(documents)) {
+                    throw new Error('Invalid response format');
+                }
+                
+                if (documents.length === 0) {
+                    documentsList.innerHTML = `
+                        <div class="glass-card" style="padding: 20px; text-align: center;">
+                            <i class="fas fa-file-alt" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p class="text-secondary" style="font-size: 1.1rem;">No documents available for this course yet.</p>
+                            <p class="text-secondary" style="font-size: 0.9rem; margin-top: 10px;">Ask your guide to upload documents using the Guide Summarizer.</p>
+                        </div>
+                    `;
+                    // Still show the document step so user can see the message
+                    document.getElementById('chat-step-course').style.display = 'none';
+                    document.getElementById('chat-step-document').style.display = 'block';
+                    document.getElementById('chat-step-chat').style.display = 'none';
+                    return;
+                }
+                
+                let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                documents.forEach(doc => {
+                    const filename = (doc.filename || 'Untitled').replace(/'/g, "\\'");
+                    const summary = (doc.summary || 'No summary available').substring(0, 150);
+                    const topics = doc.topics || [];
+                    
+                    html += `
+                        <div class="glass-card" style="padding: 15px; cursor: pointer; transition: all 0.3s; border: 1px solid var(--glass-border);" 
+                             onclick="selectChatDocument(${doc.id}, '${filename}')"
+                             onmouseover="this.style.background='var(--hover-bg)'; this.style.transform='translateX(5px)'"
+                             onmouseout="this.style.background='var(--glass-bg)'; this.style.transform='translateX(0)'">
+                            <h4 style="margin-bottom: 8px; color: var(--text-primary);">
+                                <i class="fas fa-file-alt" style="margin-right: 8px; color: var(--accent-primary);"></i>
+                                ${doc.filename || 'Untitled'}
+                            </h4>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 10px; line-height: 1.5;">${summary}${summary.length >= 150 ? '...' : ''}</p>
+                            ${topics.length > 0 ? 
+                                `<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+                                    ${topics.map(t => `<span class="badge" style="background: var(--accent-primary); font-size: 0.8rem; padding: 4px 8px;">${t}</span>`).join('')}
+                                </div>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                documentsList.innerHTML = html;
+                
+                // Show document selection step
+                document.getElementById('chat-step-course').style.display = 'none';
+                document.getElementById('chat-step-document').style.display = 'block';
+                document.getElementById('chat-step-chat').style.display = 'none';
+                
+                console.log('Document selection step shown');
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                documentsList.innerHTML = `
+                    <div class="glass-card" style="padding: 20px; background: #fee2e2; border: 1px solid #f56565;">
+                        <p style="color: #991b1b; margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> Error loading documents</p>
+                        <p style="color: #991b1b; font-size: 0.9rem;">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function selectChatDocument(docId, filename) {
+            selectedDocumentId = docId;
+            
+            // Show chat interface
+            document.getElementById('chat-step-course').style.display = 'none';
+            document.getElementById('chat-step-document').style.display = 'none';
+            document.getElementById('chat-step-chat').style.display = 'block';
+            
+            // Clear chat messages
+            const messagesContainer = document.getElementById('chat-messages-container');
+            messagesContainer.innerHTML = `
+                <div class="chat-message bot-message">
+                    <p><strong>Document:</strong> ${filename}</p>
+                    <p style="margin-top: 10px;">Document selected! Ask me anything about it.</p>
+                </div>
+            `;
+        }
+
+        function goBackToCourseSelection() {
+            selectedCourseId = null;
+            selectedDocumentId = null;
+            document.getElementById('chat-step-course').style.display = 'block';
+            document.getElementById('chat-step-document').style.display = 'none';
+            document.getElementById('chat-step-chat').style.display = 'none';
+        }
+
+        function goBackToDocumentSelection() {
+            selectedDocumentId = null;
+            if (selectedCourseId) {
+                loadChatDocuments(selectedCourseId);
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            
+            if (!query || !selectedDocumentId) return;
+            
+            const messagesContainer = document.getElementById('chat-messages-container');
+            
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'chat-message user-message';
+                userMsg.innerHTML = `<p>${query}</p>`;
+                messagesContainer.appendChild(userMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                input.value = '';
+                
+                // Add loading message
+                const loadingMsg = document.createElement('div');
+                loadingMsg.className = 'chat-message bot-message';
+                loadingMsg.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Thinking...</p>';
+                messagesContainer.appendChild(loadingMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            try {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                const response = await fetch('/learner/document-chat/chat', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        document_id: selectedDocumentId,
+                        query: query,
+                        csrf_token: csrfToken  // Also include in body for compatibility
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove loading message
+                loadingMsg.remove();
+                
+                if (response.ok) {
+                    lastChatText = data.response;
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'chat-message bot-message';
+                    botMsg.innerHTML = data.response;
+                    messagesContainer.appendChild(botMsg);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                } else {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'chat-message bot-message';
+                    errorMsg.style.cssText = 'background: #fee2e2; color: #991b1b; border-left-color: #ef4444;';
+                    errorMsg.innerHTML = `<p><strong>Error:</strong> ${data.error || 'Something went wrong'}</p>`;
+                    messagesContainer.appendChild(errorMsg);
+                }
+            } catch (error) {
+                loadingMsg.remove();
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'chat-message bot-message';
+                errorMsg.style.cssText = 'background: #fee2e2; color: #991b1b; border-left-color: #ef4444;';
+                errorMsg.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+                messagesContainer.appendChild(errorMsg);
+            }
+        }
+
+        function setQuickAction(action) {
+            document.getElementById('chat-input').value = action;
+            sendChatMessage();
+        }
+
+        async function readAloudChat() {
+            if (!lastChatText) {
+                alert('No text to read. Please send a message first.');
+                return;
+            }
+            
+            // Extract plain text from HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = lastChatText;
+            const plainText = tempDiv.textContent || tempDiv.innerText || '';
+            
+            if (!plainText.trim()) {
+                alert('No text content to read.');
+                return;
+            }
+            
+            try {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                const response = await fetch('/learner/document-chat/text-to-speech', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ text: plainText })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
+                    audio.play();
+                } else {
+                    alert('Text-to-speech failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('TTS error: ' + error.message);
+            }
+        }
+
+        // ==================== VOICE INPUT FOR LEARNER DOCUMENT CHAT ====================
+        let isRecordingChat = false;
+        let mediaRecorderChat = null;
+        let audioChunksChat = [];
+
+        async function toggleVoiceInputChat() {
+            const voiceBtn = document.getElementById('chat-voice-btn');
+            const statusDiv = document.getElementById('voice-input-status-chat');
+            
+            if (!isRecordingChat) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorderChat = new MediaRecorder(stream);
+                    audioChunksChat = [];
+
+                    mediaRecorderChat.ondataavailable = (event) => {
+                        audioChunksChat.push(event.data);
+                    };
+
+                    mediaRecorderChat.onstop = async () => {
+                        const audioBlob = new Blob(audioChunksChat, { type: 'audio/wav' });
+                        await transcribeAudioChat(audioBlob);
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorderChat.start();
+                    isRecordingChat = true;
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                    statusDiv.style.display = 'block';
+                } catch (error) {
+                    alert('Microphone access denied. Please allow microphone access.');
+                    console.error('Microphone error:', error);
+                }
+            } else {
+                if (mediaRecorderChat && mediaRecorderChat.state !== 'inactive') {
+                    mediaRecorderChat.stop();
+                }
+                isRecordingChat = false;
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                statusDiv.style.display = 'none';
+            }
+        }
+
+        async function transcribeAudioChat(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'audio.wav');
+            
+            // Add language selection if specified
+            const languageSelect = document.getElementById('chat-voice-language-select');
+            if (languageSelect && languageSelect.value) {
+                formData.append('language', languageSelect.value);
+            }
+
+            try {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const headers = {};
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+                
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData,
+                    headers: headers
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.text) {
+                    // Populate the chat input with transcribed text
+                    const chatInput = document.getElementById('chat-input');
+                    if (chatInput) {
+                        chatInput.value = data.text;
+                        chatInput.focus();
+                        
+                        // Show detected language if auto-detected
+                        if (data.detected_language_name && data.detected_language_name !== 'unknown') {
+                            const statusDiv = document.getElementById('voice-input-status-chat');
+                            if (statusDiv) {
+                                statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color: #10b981;"></i> Transcribed (${data.detected_language_name})`;
+                                statusDiv.style.display = 'block';
+                                setTimeout(() => {
+                                    statusDiv.style.display = 'none';
+                                }, 3000);
+                            }
+                        }
+                    }
+                } else {
+                    alert('Transcription failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Transcription error: ' + error.message);
+            }
+        }
+
+        console.log('✅ Learner Dashboard loaded successfully!');
+
+
+    </script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/guidebot.css') }}">
+    <script src="{{ url_for('static', filename='js/guidebot_learner.js') }}"></script>
+    <script>
+        // ============= LEARNER MCQ ATTEMPT FUNCTIONS =============
+            let currentMCQTest = null;
+            let currentMCQAnswers = {};
+
+            function switchLearnerMCQTab(tab) {
+                document.querySelectorAll('.learner-mcq-subtab').forEach(t => t.style.display = 'none');
+                document.querySelectorAll('#attempt-mcq .tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.borderBottomColor = 'transparent';
+                    btn.style.color = 'var(--text-secondary)';
+                });
+                
+                if (event && event.target) {
+                    event.target.classList.add('active');
+                    event.target.style.borderBottomColor = 'var(--accent-color)';
+                    event.target.style.color = 'var(--accent-color)';
+                }
+                
+                document.getElementById('learner-mcq-' + tab + '-tab').style.display = 'block';
+                
+                if (tab === 'available') {
+                    loadAvailableMCQs();
+                } else if (tab === 'attempts') {
+                    loadMyMCQAttempts();
+                }
+            }
+
+            async function loadAvailableMCQs() {
+                const container = document.getElementById('available-mcq-container');
+                if (!container) return;
+                container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading available tests...</p>';
+                
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    const response = await fetch('/learner/test-mcq/list', {
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        }
+                    });
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        container.innerHTML = `<p style="text-align: center; padding: 40px; color: var(--error);">Error: ${data.error || 'Failed to load tests'}</p>`;
+                        console.error('Error loading MCQs:', data.error);
+                        return;
+                    }
+                    
+                    if (data.mcqs && data.mcqs.length > 0) {
+                        container.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                                ${data.mcqs.map(mcq => `
+                                    <div style="background: var(--glass-bg); padding: 20px; border-radius: 12px; border-left: 4px solid var(--accent-color);">
+                                        <h4 style="margin-bottom: 10px;">${mcq.title}</h4>
+                                        <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                                            <strong>Questions:</strong> ${mcq.num_questions}<br>
+                                            <strong>Created by:</strong> ${mcq.guide_name}<br>
+                                            <strong>Created:</strong> ${new Date(mcq.created_at).toLocaleDateString()}
+                                        </p>
+                                        ${mcq.attempted ? 
+                                            '<span style="padding: 5px 15px; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 20px; font-size: 0.9rem;">✓ Attempted</span>' :
+                                            `<button class="btn btn-primary" onclick="startMCQAttempt(${mcq.id})">Start Test</button>`
+                                        }
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">No MCQ tests available yet.</p>';
+                    }
+                } catch (error) {
+                    container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--error);">Error loading tests.</p>';
+                }
+            }
+
+            function startMCQAttempt(testMcqId) {
+                // Redirect to dedicated secure test page
+                window.location.href = `/mcq-test?id=${testMcqId}`;
+            }
+            
+            async function startMCQAttempt_OLD(testMcqId) {
+                try {
+                    const response = await fetch(`/learner/test-mcq/${testMcqId}`);
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        alert('Error: ' + (data.error || 'Failed to load test'));
+                        return;
+                    }
+                    
+                    currentMCQTest = data.test_mcq;
+                    currentMCQAnswers = {};
+                    
+                    document.getElementById('learner-mcq-available-tab').style.display = 'none';
+                    document.getElementById('learner-mcq-attempts-tab').style.display = 'none';
+                    document.getElementById('mcq-attempt-interface').style.display = 'block';
+                    document.getElementById('mcq-test-title').textContent = currentMCQTest.title;
+                    
+                    displayMCQQuestions(data.mcqs);
+                } catch (error) {
+                    alert('Error loading test: ' + error.message);
+                }
+            }
+
+            function displayMCQQuestions(mcqs) {
+                const container = document.getElementById('mcq-questions-container');
+                if (!container) return;
+                let html = '';
+                
+                mcqs.forEach((mcq, idx) => {
+                    html += `
+                        <div style="background: var(--glass-bg); padding: 25px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid var(--accent-color);">
+                            <h4 style="margin-bottom: 15px;">Question ${mcq.id}</h4>
+                            <p style="margin-bottom: 20px; font-size: 1.05em;">${mcq.question}</p>
+                            <div style="margin-bottom: 15px;">
+                                ${(mcq.options || []).map((opt, optIdx) => {
+                                    const optionLetter = opt.charAt(0);
+                                    return `
+                                        <label style="display: block; padding: 12px; margin: 8px 0; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.3s;" 
+                                               onmouseover="this.style.borderColor='var(--accent-color)'" 
+                                               onmouseout="this.style.borderColor='transparent'">
+                                            <input type="radio" name="mcq_question_${mcq.id}" value="${optionLetter}" 
+                                                   onchange="currentMCQAnswers['${mcq.id}'] = '${optionLetter}'" 
+                                                   style="margin-right: 10px;">
+                                            ${opt}
+                                        </label>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+
+            async function submitMCQAttempt() {
+                if (!currentMCQTest) return;
+                
+                const totalQuestions = document.querySelectorAll('#mcq-questions-container [id^="mcq-questions-container"]').length || Object.keys(currentMCQAnswers).length;
+                const testQuestions = Object.keys(currentMCQAnswers).length;
+                
+                if (testQuestions < totalQuestions) {
+                    if (!confirm(`You have answered ${testQuestions} out of ${totalQuestions} questions. Submit anyway?`)) {
+                        return;
+                    }
+                }
+                
+                const submitBtn = document.getElementById('submit-mcq-btn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+                }
+                
+                try {
+                    // Get CSRF token from meta tag
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    
+                    const response = await fetch(`/learner/test-mcq/${currentMCQTest.id}/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            answers: currentMCQAnswers
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        alert('Error: ' + (data.error || 'Submission failed'));
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Submit Answers';
+                        }
+                        return;
+                    }
+                    
+                    displayMCQResults(data);
+                    document.getElementById('mcq-attempt-interface').style.display = 'none';
+                    document.getElementById('mcq-results-interface').style.display = 'block';
+                } catch (error) {
+                    alert('Error submitting: ' + error.message);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Answers';
+                    }
+                }
+            }
+
+            function displayMCQResults(data) {
+                const container = document.getElementById('mcq-results-content');
+                if (!container) return;
+                
+                const marksText = data.marks_obtained !== undefined ? 
+                    `<p style="font-size: 1.1em; color: var(--text-secondary); margin-top: 10px;">
+                        Marks: <strong>${data.marks_obtained.toFixed(1)}/${data.total_marks.toFixed(1)}</strong>
+                    </p>` : '';
+                
+                let html = `
+                    <div style="text-align: center; margin-bottom: 30px; padding: 30px; background: var(--glass-bg); border-radius: 12px;">
+                        <h3 style="font-size: 3rem; margin-bottom: 10px; color: ${data.score >= 70 ? 'var(--success)' : data.score >= 50 ? '#f59e0b' : 'var(--error)'};">
+                            ${data.score.toFixed(1)}%
+                        </h3>
+                        <p style="font-size: 1.2em; color: var(--text-secondary);">
+                            ${data.correct_answers} out of ${data.total_questions} correct
+                        </p>
+                        ${marksText}
+                    </div>
+                    
+                    <h3 style="margin-bottom: 20px;">Question Review</h3>
+                `;
+                
+                data.results.forEach((result, idx) => {
+                    html += `
+                        <div style="background: var(--glass-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid ${result.is_correct ? 'var(--success)' : 'var(--error)'};">
+                            <h4 style="margin-bottom: 15px;">Question ${idx + 1}</h4>
+                            <p style="margin-bottom: 15px;">${result.question}</p>
+                            <div style="margin-bottom: 15px;">
+                                <p><strong>Your Answer:</strong> <span style="color: ${result.is_correct ? 'var(--success)' : 'var(--error)'};">
+                                    ${result.selected || 'Not answered'} ${result.is_correct ? '✓' : '✗'}
+                                </span></p>
+                                <p><strong>Correct Answer:</strong> <span style="color: var(--success);">${result.correct}</span></p>
+                            </div>
+                            ${result.explanation ? `
+                                <div style="padding: 12px; background: rgba(255, 193, 7, 0.1); border-radius: 8px; border-left: 3px solid #ffc107;">
+                                    <strong>Explanation:</strong> ${result.explanation}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+
+            function exitMCQAttempt() {
+                if (confirm('Are you sure you want to exit? Your progress will be lost.')) {
+                    currentMCQTest = null;
+                    currentMCQAnswers = {};
+                    document.getElementById('mcq-attempt-interface').style.display = 'none';
+                    document.getElementById('mcq-results-interface').style.display = 'none';
+                    document.getElementById('learner-mcq-available-tab').style.display = 'block';
+                    loadAvailableMCQs();
+                }
+            }
+
+            function backToMCQList() {
+                currentMCQTest = null;
+                currentMCQAnswers = {};
+                document.getElementById('mcq-results-interface').style.display = 'none';
+                document.getElementById('learner-mcq-available-tab').style.display = 'block';
+                loadAvailableMCQs();
+            }
+
+            async function loadMyMCQAttempts() {
+                const container = document.getElementById('my-attempts-container');
+                if (!container) return;
+                container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading...</p>';
+                
+                try {
+                    const response = await fetch('/learner/test-mcq/attempts');
+                    const data = await response.json();
+                    
+                    if (data.success && data.attempts && data.attempts.length > 0) {
+                        container.innerHTML = `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                                ${data.attempts.map(attempt => `
+                                    <div style="background: var(--glass-bg); padding: 20px; border-radius: 12px; border-left: 4px solid ${attempt.score >= 70 ? 'var(--success)' : attempt.score >= 50 ? '#f59e0b' : 'var(--error)'};">
+                                        <h4 style="margin-bottom: 10px;">${attempt.test_title}</h4>
+                                        <div style="text-align: center; margin: 15px 0;">
+                                            <div style="font-size: 2.5rem; font-weight: 700; color: ${attempt.score >= 70 ? 'var(--success)' : attempt.score >= 50 ? '#f59e0b' : 'var(--error)'};">
+                                                ${attempt.score.toFixed(1)}%
+                                            </div>
+                                            <p style="color: var(--text-secondary);">
+                                                ${attempt.correct_answers}/${attempt.total_questions} correct
+                                            </p>
+                                            ${attempt.marks_obtained !== undefined ? 
+                                                `<p style="color: var(--text-secondary); margin-top: 5px;">
+                                                    Marks: <strong>${attempt.marks_obtained.toFixed(1)}/${attempt.total_marks.toFixed(1)}</strong>
+                                                </p>` : ''}
+                                        </div>
+                                        <p style="color: var(--text-secondary); font-size: 0.9rem; text-align: center;">
+                                            Completed: ${new Date(attempt.completed_at).toLocaleString()}
+                                        </p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">No attempts yet.</p>';
+                    }
+                } catch (error) {
+                    container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--error);">Error loading attempts.</p>';
+                }
+            }
+
+            // Load available MCQs when section is shown
+            document.addEventListener('DOMContentLoaded', function() {
+                const attemptMCQSection = document.getElementById('attempt-mcq');
+                if (attemptMCQSection && attemptMCQSection.classList.contains('active')) {
+                    loadAvailableMCQs();
+                }
+            });
+        </script>
+    </body>
+
+</html>

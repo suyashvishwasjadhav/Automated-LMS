@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>MCQ Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .test-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .timer-warning {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+        
+        .timer-danger {
+            background: #ef4444;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .test-content {
+            padding: 30px;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option-label:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .option-label.selected {
+            border-color: #667eea;
+            background: #e0e7ff;
+        }
+        
+        .option-radio {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .option-text {
+            flex: 1;
+            font-size: 1rem;
+            color: #374151;
+        }
+        
+        .submit-section {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 20px 30px;
+            border-top: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .progress-info {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .warning-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .warning-title {
+            font-size: 1.5rem;
+            color: #ef4444;
+            margin-bottom: 15px;
+        }
+        
+        .warning-text {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        .tab-change-count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ef4444;
+            margin: 10px 0;
+        }
+        
+        @media print {
+            body { display: none; }
+        }
+        
+        @media (max-width: 768px) {
+            .test-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .test-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <div class="test-title" id="test-title">Loading...</div>
+            <div class="timer-container" id="timer-container">
+                <i class="fas fa-clock"></i>
+                <span id="timer-display">00:00:00</span>
+            </div>
+        </div>
+        
+        <div class="test-content" id="test-content">
+            <p style="text-align: center; padding: 40px;">Loading test...</p>
+        </div>
+        
+        <div class="submit-section" id="submit-section">
+            <div class="progress-info" id="progress-info">Answered: 0 / 0</div>
+            <button class="submit-btn" id="submit-btn" onclick="submitTest()">Submit Test</button>
+        </div>
+    </div>
+    
+    <div class="warning-overlay" id="warning-overlay">
+        <div class="warning-box">
+            <div class="warning-title">⚠️ Tab Change Detected</div>
+            <div class="tab-change-count" id="tab-change-count">1</div>
+            <div class="warning-text">You have changed tabs. If you change tabs <strong>2 times</strong>, your test will be automatically submitted.</div>
+        </div>
+    </div>
+    
+    <script>
+        let testData = null;
+        let answers = {};
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let tabChangeCount = 0;
+        let attemptId = null;
+        
+        // Disable text selection
+        document.addEventListener('selectstart', e => e.preventDefault());
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Disable copy/paste
+        document.addEventListener('copy', e => e.preventDefault());
+        document.addEventListener('paste', e => e.preventDefault());
+        document.addEventListener('cut', e => e.preventDefault());
+        
+        // Disable right-click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Tab change detection
+        let isPageVisible = true;
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                isPageVisible = true;
+            } else {
+                isPageVisible = false;
+                tabChangeCount++;
+                showTabChangeWarning();
+                
+                if (tabChangeCount >= 2) {
+                    setTimeout(() => {
+                        alert('You have changed tabs 2 times. Test will be auto-submitted.');
+                        autoSubmitTest();
+                    }, 2000);
+                }
+            }
+        });
+        
+        // Blur detection (when window loses focus)
+        window.addEventListener('blur', () => {
+            tabChangeCount++;
+            showTabChangeWarning();
+            
+            if (tabChangeCount >= 2) {
+                setTimeout(() => {
+                    alert('You have changed tabs 2 times. Test will be auto-submitted.');
+                    autoSubmitTest();
+                }, 2000);
+            }
+        });
+        
+        function showTabChangeWarning() {
+            const overlay = document.getElementById('warning-overlay');
+            const count = document.getElementById('tab-change-count');
+            count.textContent = tabChangeCount;
+            overlay.style.display = 'flex';
+            
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Screenshot protection - blank screen on screenshot
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && e.key === 'S')) {
+                e.preventDefault();
+                document.body.style.filter = 'blur(50px)';
+                setTimeout(() => {
+                    document.body.style.filter = 'none';
+                }, 1000);
+            }
+        });
+        
+        // Load test data
+        async function loadTest() {
+            const testId = new URLSearchParams(window.location.search).get('id');
+            if (!testId) {
+                alert('Invalid test ID');
+                window.location.href = '/learner/dashboard';
+                return;
+            }
+            
+            try {
+                // First get test info
+                const infoResponse = await fetch(`/learner/test-mcq/${testId}`);
+                const infoData = await infoResponse.json();
+                
+                if (!infoData.success) {
+                    alert('Error: ' + infoData.error);
+                    window.location.href = '/learner/dashboard';
+                    return;
+                }
+                
+                if (infoData.already_attempted) {
+                    alert('You have already attempted this test. Your previous score: ' + infoData.previous_score.toFixed(1) + '%');
+                    window.location.href = '/learner/dashboard';
+                    return;
+                }
+                
+                // Show rules and get confirmation
+                const rulesAccepted = await showRules(infoData.test);
+                if (!rulesAccepted) {
+                    window.location.href = '/learner/dashboard';
+                    return;
+                }
+                
+                // Start the test
+                const startResponse = await fetch(`/learner/test-mcq/${testId}/start`);
+                const startData = await startResponse.json();
+                
+                if (!startData.success) {
+                    alert('Error: ' + startData.error);
+                    window.location.href = '/learner/dashboard';
+                    return;
+                }
+                
+                testData = startData;
+                attemptId = startData.attempt_id;
+                timeRemaining = startData.test.time_limit_minutes * 60; // Convert to seconds
+                
+                displayTest();
+                startTimer();
+            } catch (error) {
+                alert('Error loading test: ' + error.message);
+                window.location.href = '/learner/dashboard';
+            }
+        }
+        
+        function showRules(test) {
+            return new Promise((resolve) => {
+                const rulesHtml = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                        <div style="background: white; border-radius: 16px; padding: 40px; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+                            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">Test Rules & Instructions</h2>
+                            
+                            <div style="margin-bottom: 25px;">
+                                <h3 style="color: #1f2937; margin-bottom: 15px;">Test Information:</h3>
+                                <ul style="list-style: none; padding: 0;">
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Title:</strong> ${test.title}</li>
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Questions:</strong> ${test.num_questions}</li>
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Total Marks:</strong> ${test.total_marks}</li>
+                                    <li style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Time Limit:</strong> ${test.time_limit_minutes} minutes</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="margin-bottom: 25px;">
+                                <h3 style="color: #ef4444; margin-bottom: 15px;">⚠️ Important Rules:</h3>
+                                <ul style="list-style: disc; padding-left: 20px; color: #374151; line-height: 1.8;">
+                                    <li>You cannot copy, paste, or select text during the test</li>
+                                    <li>Screenshots will show a blank screen</li>
+                                    <li>If you change tabs <strong>2 times</strong>, your test will be automatically submitted</li>
+                                    <li>The test will auto-submit when time expires</li>
+                                    <li>You cannot go back to previous questions after submission</li>
+                                    <li>Right-click and developer tools are disabled</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                                <button type="button" data-rule-action="cancel" style="padding: 12px 30px; background: #e5e7eb; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
+                                <button type="button" data-rule-action="accept" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">I Agree, Start Test</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+            const modal = document.createElement('div');
+            modal.id = 'rules-modal';
+            modal.innerHTML = rulesHtml;
+            document.body.appendChild(modal);
+
+            const cancelBtn = modal.querySelector('[data-rule-action="cancel"]');
+            const acceptBtn = modal.querySelector('[data-rule-action="accept"]');
+
+            cancelBtn?.addEventListener('click', () => {
+                modal.remove();
+                resolve(false);
+            });
+
+            acceptBtn?.addEventListener('click', () => {
+                modal.remove();
+                resolve(true);
+            });
+            });
+        }
+        
+        function displayTest() {
+            document.getElementById('test-title').textContent = testData.test.title;
+            
+            let html = '';
+            testData.mcqs.forEach((mcq, idx) => {
+                const questionId = idx + 1;
+                html += `
+                    <div class="question-card">
+                        <div class="question-number">Question ${questionId}</div>
+                        <div class="question-text">${mcq.question || ''}</div>
+                        <div class="options-container">
+                            ${(mcq.options || []).map((opt, optIdx) => {
+                                const optionLetter = String.fromCharCode(65 + optIdx); // A, B, C, D
+                                const isSelected = answers[questionId] === optionLetter;
+                                return `
+                                    <label class="option-label ${isSelected ? 'selected' : ''}" onclick="selectOption(${questionId}, '${optionLetter}')">
+                                        <input type="radio" name="q${questionId}" value="${optionLetter}" class="option-radio" ${isSelected ? 'checked' : ''} onchange="selectOption(${questionId}, '${optionLetter}')">
+                                        <span class="option-text">${opt}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('test-content').innerHTML = html;
+            updateProgress();
+        }
+        
+        function selectOption(questionId, option) {
+            answers[questionId] = option;
+            updateProgress();
+            
+            // Update visual selection
+            const card = document.querySelector(`.question-card:nth-child(${questionId})`);
+            card.querySelectorAll('.option-label').forEach(label => {
+                label.classList.remove('selected');
+            });
+            card.querySelector(`input[value="${option}"]`).closest('.option-label').classList.add('selected');
+        }
+        
+        function updateProgress() {
+            const total = testData.test.num_questions;
+            const answered = Object.keys(answers).length;
+            document.getElementById('progress-info').textContent = `Answered: ${answered} / ${total}`;
+        }
+        
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Time is up! Your test will be submitted automatically.');
+                    autoSubmitTest();
+                } else if (timeRemaining <= 300) { // 5 minutes
+                    document.getElementById('timer-container').classList.add('timer-danger');
+                } else if (timeRemaining <= 600) { // 10 minutes
+                    document.getElementById('timer-container').classList.add('timer-warning');
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeRemaining / 3600);
+            const minutes = Math.floor((timeRemaining % 3600) / 60);
+            const seconds = timeRemaining % 60;
+            
+            const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = display;
+        }
+        
+        async function submitTest() {
+            if (!confirm('Are you sure you want to submit? You cannot change your answers after submission.')) {
+                return;
+            }
+            
+            await submitAnswers();
+        }
+        
+        async function autoSubmitTest() {
+            await submitAnswers(true);
+        }
+        
+        async function submitAnswers(isAuto = false) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('submit-btn').textContent = 'Submitting...';
+            
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const response = await fetch(`/learner/test-mcq/${testData.test.id}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        answers: answers,
+                        attempt_id: attemptId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    alert('Error: ' + (data.error || 'Submission failed'));
+                    document.getElementById('submit-btn').disabled = false;
+                    document.getElementById('submit-btn').textContent = 'Submit Test';
+                    return;
+                }
+                
+                // Show results
+                showResults(data, isAuto);
+            } catch (error) {
+                alert('Error submitting test: ' + error.message);
+                document.getElementById('submit-btn').disabled = false;
+                document.getElementById('submit-btn').textContent = 'Submit Test';
+            }
+        }
+        
+        function showResults(data, isAuto) {
+            const resultsHtml = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: ${data.score >= 70 ? '#10b981' : data.score >= 50 ? '#f59e0b' : '#ef4444'}; margin-bottom: 20px;">
+                        ${isAuto ? 'Test Auto-Submitted' : 'Test Submitted Successfully!'}
+                    </h2>
+                    <div style="font-size: 4rem; font-weight: 700; color: ${data.score >= 70 ? '#10b981' : data.score >= 50 ? '#f59e0b' : '#ef4444'}; margin: 20px 0;">
+                        ${data.score.toFixed(1)}%
+                    </div>
+                    <div style="font-size: 1.2rem; color: #6b7280; margin-bottom: 10px;">
+                        Marks: <strong>${data.marks_obtained.toFixed(1)} / ${data.total_marks.toFixed(1)}</strong>
+                    </div>
+                    <div style="font-size: 1.1rem; color: #6b7280; margin-bottom: 30px;">
+                        Correct Answers: ${data.correct_answers} / ${data.total_questions}
+                    </div>
+                    <button onclick="window.location.href='/learner/dashboard'" style="padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;">
+                        Back to Dashboard
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('test-content').innerHTML = resultsHtml;
+            document.getElementById('submit-section').style.display = 'none';
+            document.getElementById('timer-container').style.display = 'none';
+        }
+        
+        // Prevent navigation away
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+        
+        // Load test on page load
+        loadTest();
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</body>
+</html>
+

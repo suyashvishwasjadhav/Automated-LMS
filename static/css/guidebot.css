@@ -1,0 +1,723 @@
+/* ==================== GUIDEBOT CHATBOT STYLES ==================== */
+
+.guidebot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Chatbot Toggle Button */
+.guidebot-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: guidebotPulse 2s infinite;
+}
+
+.guidebot-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+}
+
+.guidebot-toggle:active {
+    transform: scale(0.95);
+}
+
+@keyframes guidebotPulse {
+    0%, 100% {
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+    50% {
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7);
+    }
+}
+
+.guidebot-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: badgeBounce 1s infinite;
+}
+
+@keyframes badgeBounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* Chatbot Window */
+.guidebot-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    height: 600px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: bottom right;
+}
+
+.guidebot-window.active {
+    display: flex;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Chatbot Header */
+.guidebot-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.guidebot-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    animation: avatarFloat 3s ease-in-out infinite;
+}
+
+@keyframes avatarFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.guidebot-info h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.guidebot-status {
+    font-size: 12px;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.guidebot-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        opacity: 0.8;
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+}
+
+.guidebot-close {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.guidebot-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Messages Container */
+.guidebot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.guidebot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.guidebot-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.guidebot-messages::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 10px;
+}
+
+.guidebot-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+}
+
+/* Message Styles */
+.guidebot-message {
+    display: flex;
+    gap: 12px;
+    animation: messageSlide 0.4s ease-out;
+    max-width: 85%;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.guidebot-message.user-message {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.bot-message .message-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.user-message .message-avatar {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+
+.message-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    padding: 12px 16px;
+    border-radius: 18px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bot-message .message-content {
+    border-bottom-left-radius: 4px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.user-message .message-content {
+    border-bottom-right-radius: 4px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+}
+
+.message-content p {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+.help-list {
+    margin: 8px 0;
+    padding-left: 20px;
+    color: var(--text-primary);
+}
+
+.help-list li {
+    margin: 4px 0;
+    font-size: 13px;
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    animation: typingDot 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingDot {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+/* Input Container */
+.guidebot-input-container {
+    padding: 16px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.guidebot-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.guidebot-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.guidebot-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.guidebot-send {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.guidebot-send:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.guidebot-send:active {
+    transform: scale(0.95);
+}
+
+.guidebot-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: scale(1);
+}
+
+/* Guidebot Options */
+.guidebot-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.guidebot-option-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.guidebot-option-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    transition: left 0.3s ease;
+    z-index: 0;
+}
+
+.guidebot-option-btn:hover::before {
+    left: 0;
+}
+
+.guidebot-option-btn:hover {
+    transform: translateX(4px);
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.guidebot-option-btn:active {
+    transform: translateX(2px) scale(0.98);
+}
+
+.guidebot-option-btn i {
+    font-size: 18px;
+    color: #667eea;
+    z-index: 1;
+    position: relative;
+    transition: transform 0.3s;
+}
+
+.guidebot-option-btn:hover i {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.guidebot-option-btn span {
+    z-index: 1;
+    position: relative;
+    flex: 1;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.quick-action-btn {
+    padding: 8px 14px;
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-action-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+/* Date Picker Styles */
+.guidebot-date-picker {
+    margin-top: 12px;
+}
+
+.guidebot-date-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.guidebot-submit-date:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.guidebot-submit-date:active {
+    transform: translateY(0);
+}
+
+/* Contact Form Styles */
+.guidebot-contact-form {
+    margin-top: 12px;
+}
+
+.guidebot-contact-form select:focus,
+.guidebot-contact-form textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.guidebot-submit-contact:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.guidebot-submit-contact:active {
+    transform: translateY(0);
+}
+
+/* Rating Form Styles */
+.guidebot-rating-form {
+    margin-top: 12px;
+}
+
+.star-rating {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+
+.star-btn:hover {
+    transform: scale(1.2);
+}
+
+.star-btn.active {
+    color: #ffd700;
+    transform: scale(1.2);
+}
+
+/* Suggestion Form Styles */
+.guidebot-suggestion-form {
+    margin-top: 12px;
+}
+
+.guidebot-suggestion-form textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.guidebot-submit-rating:hover,
+.guidebot-submit-suggestion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.guidebot-submit-rating:active,
+.guidebot-submit-suggestion:active {
+    transform: translateY(0);
+}
+
+/* Categorized Options Styles */
+.guidebot-categorized-options {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(102, 126, 234, 0.2);
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Category Wrapper */
+.guidebot-category-wrapper {
+    margin-bottom: 12px;
+}
+
+/* Category Button (Accordion Header) */
+.guidebot-category-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 8px;
+}
+
+.guidebot-category-btn:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.guidebot-category-btn.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.guidebot-category-icon {
+    transition: transform 0.3s ease;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Category Options (Accordion Content) */
+.guidebot-category-options {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    padding-left: 8px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+    }
+}
+
+.guidebot-category-options .guidebot-option-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    border-radius: 10px;
+    font-size: 13px;
+    transition: all 0.3s;
+    text-align: left;
+}
+
+.guidebot-category-options .guidebot-option-btn:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border-color: rgba(102, 126, 234, 0.4);
+    transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .guidebot-window {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 120px);
+        right: 20px;
+        left: 20px;
+    }
+    
+    .guidebot-toggle {
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] .guidebot-messages {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .message-content {
+    background: rgba(30, 41, 59, 0.6);
+}
+
+[data-theme="dark"] .guidebot-input {
+    background: rgba(30, 41, 59, 0.4);
+}
+
